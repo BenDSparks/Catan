@@ -1,0 +1,100 @@
+﻿class Board
+{
+    public readonly Hex[,] Hexes = new Hex[10,10];
+    public readonly Edge[,] Edges = new Edge[22,22];
+    public readonly Vertex[,] Vertices = new Vertex[22,22];
+
+    public Board()
+    {
+        for(int i = 0; i < 10; i++)
+        for(int j = 0; j < 10; j++)
+            Hexes[i,j] = new Hex { X = i, Y = j };
+        for(int i = 0; i < 22; i++)
+        for(int j = 0; j < 22; j++)
+        {
+            Edges[i,j] = new Edge { X = i, Y = j };
+            Vertices[i,j] = new Vertex { X = i, Y = j };
+        }
+    }
+
+    public IEnumerable<Hex> GetNeighbors(Hex hex)
+    {
+        var x = hex.X; var y = hex.Y;
+        var offset = x % 2 == 0? +1 : -1;
+        return new []
+        {
+            Hexes[x,y+1],
+            Hexes[x,y-1],
+            Hexes[x+1,y],
+            Hexes[x-1,y],
+            Hexes[x+1,y+offset],
+            Hexes[x-1,y+offset],
+        };
+    }
+    public IEnumerable<Vertex> GetVertices(Hex hex)
+    {
+        var x = hex.X; var y = hex.Y;
+        var offset = x % 2;
+        return new[]
+        {
+            Vertices[x,2*y+offset],
+            Vertices[x,2*y+1+offset],
+            Vertices[x,2*y+2+offset],
+            Vertices[x+1,2*y+offset],
+            Vertices[x+1,2*y+1+offset],
+            Vertices[x+1,2*y+2+offset],
+        };
+    }
+    public IEnumerable<Edge> GetEdges(Hex hex)
+    {
+        var x = hex.X; var y = hex.Y;
+        var offset = x % 2;
+        return new[]
+        {
+            Edges[2*x,2*y+offset],
+            Edges[2*x,2*y+1+offset],
+            Edges[2*x+1,2*y+offset],
+            Edges[2*x+1,2*y+2+offset],
+            Edges[2*x+2,2*y+offset],
+            Edges[2*x+2,2*y+1+offset],
+        };
+    }
+    public IEnumerable<Vertex> GetEnds(Edge edge)
+    {
+        var x = edge.X; var y = edge.Y;
+        if(x % 2 == 0)
+            return new[]
+            {
+                Vertices[x/2,y],
+                Vertices[x/2,y+1],
+            };
+        else
+            return new[]
+            {
+                Vertices[(x-1)/2,y],
+                Vertices[(x+1)/2,y],
+            };
+    }
+    public IEnumerable<Edge> GetEdges(Vertex vertex)
+    {
+        var x = vertex.X; var y = vertex.Y;
+        return new []
+        {
+            Edges[x*2,y],
+            Edges[x*2+1,y],
+            Edges[x*2-1,y],
+        };
+    }
+    public IEnumerable<Hex> GetHexes(Vertex vertex)
+    {
+        var x = vertex.X; var y = vertex.Y;
+        var xoffset = x % 2;
+        var yoffset = y % 2;
+        return new[]
+        {
+            Hexes[x-1,(y+xoffset)/2-1],
+            Hexes[x-(1-yoffset)*xoffset,(y-1)/2],
+            Hexes[x,(y-xoffset)/2],
+        };
+    }
+}
