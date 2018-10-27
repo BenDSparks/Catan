@@ -28,7 +28,7 @@ public class ClickManager : MonoBehaviour {
 
                     TileData tileData = objectHit.GetComponent<TileData>();
 
-                    print(string.Concat("Clicked Tile", tileData.getX(), ",", tileData.getY()));
+                    print(string.Concat("Clicked Tile: (", tileData.getX(), ",", tileData.getY(), ") ", tileData.getResourceType()));
                     break;
                 }
             }

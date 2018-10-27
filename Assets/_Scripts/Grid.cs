@@ -8,8 +8,8 @@ public class Grid : MonoBehaviour
     private Tile[,] tiles;
     public GameObject tokenPrefab;
 
-    public int gridWidth = 5;
-    public int gridHeight = 5;
+    private int gridWidth = 7;
+    private int gridHeight = 7;
 
 
     float hexWidth = 1.732f;
@@ -78,7 +78,7 @@ public class Grid : MonoBehaviour
         {
             for (int x = 0; x < gridWidth; x++)
             {
-
+                print("Board: " + x + "," + y);
                 //the partOfTheBoard is inversed to be eaiser to write boards
                 if(board.partOfTheBoard[y,x]){
                     //print("Board " + x + ", " + y);
@@ -115,6 +115,7 @@ public class Grid : MonoBehaviour
                     }
 
                     MeshRenderer meshRenderer = tile.GetComponent<MeshRenderer>();
+                    tileData.setResourceType(board.resourceList[tileIndex]);
                     switch(board.resourceList[tileIndex]){
                         case ResourceType.Brick:
                             meshRenderer.material = brickMat;
@@ -141,31 +142,24 @@ public class Grid : MonoBehaviour
                             meshRenderer.material = waterMat;
                             break;
                     }
-
-
-
-
                     tileIndex++;
                 }
+                else{
+                    GameObject tile = (GameObject)Instantiate(tilePrefab);
+                    tile.transform.parent = this.transform;
+                    TileData tileData = tile.GetComponent<TileData>();
+
+
+                    Vector2 gridPos = new Vector2(x, y);
+                    tile.transform.position = CalcWorldPos(gridPos);
+                    tile.transform.name = "Hexagon (" + x + "," + y + ") Water";
+
+                    tileData.setPosition(x, y);
+                    tileData.setResourceType(ResourceType.Water);
+
+                }
+
             }
         }
-
-
-
-
-        //Print half the grid hight and width
-        //print("grid height/2: " + (gridHeight / 2));
-        //print("grid width/2: " + (gridWidth / 2));
-
-        //test changing the material
-        //MeshRenderer meshRendererTest = tiles[2, 2].gameObject.GetComponent<MeshRenderer>();
-        //meshRendererTest.material = brickMat;
-
-        //test destroying a gameobject from a tile array
-        //Destroy(tiles[1, 4].gameObject);
-        //Destroy(tiles[2, 4].gameObject);
-        //Destroy(tiles[3, 4].gameObject);
-
     }
-
 }

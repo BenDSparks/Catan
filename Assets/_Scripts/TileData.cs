@@ -7,6 +7,7 @@ public class TileData : MonoBehaviour {
 
     private int tokenNumber;
     private int x, y;
+    private ResourceType resourceType;
 
     public void setTokenNumber(int number){
         tokenNumber = number;
@@ -27,6 +28,14 @@ public class TileData : MonoBehaviour {
 
     public int getTokenNumber(){
         return tokenNumber;
+    }
+
+    public void setResourceType(ResourceType resourceType){
+        this.resourceType = resourceType;
+    }
+
+    public ResourceType getResourceType(){
+        return resourceType;
     }
 	//// Use this for initialization
 	//void Start () {

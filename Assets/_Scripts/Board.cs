@@ -22,15 +22,17 @@ public class Board
     {
         if (boardNumber == 1)
         {
-            width = 5;
-            height = 5;
+            width = 7;
+            height = 7;
             partOfTheBoard = new bool[,]
             {
-                {false,true,true,true,false},
-                {true,true,true,true,false},
-                {true,true,true,true,true},
-                {true,true,true,true,false},
-                {false,true,true,true,false}
+                {false,false,false,false,false,false,false},
+                {false,false,true,true,true,false,false},
+                {false,false,true,true,true,true,false},
+                {false,true,true,true,true,true,false},
+                {false,false,true,true,true,true,false},
+                {false,false,true,true,true,false,false},
+                {false,false,false,false,false,false,false}
             };
             resourceList = new ResourceType[] {
                 ResourceType.Brick,
