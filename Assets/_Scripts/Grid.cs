@@ -78,7 +78,6 @@ public class Grid : MonoBehaviour
         {
             for (int x = 0; x < gridWidth; x++)
             {
-                print("Board: " + x + "," + y);
                 //the partOfTheBoard is inversed to be eaiser to write boards
                 if(board.partOfTheBoard[y,x]){
                     //print("Board " + x + ", " + y);
@@ -142,7 +141,9 @@ public class Grid : MonoBehaviour
                             meshRenderer.material = waterMat;
                             break;
                     }
+                    tileData.setResourceType(board.resourceList[tileIndex]);
                     tileIndex++;
+                    print("Hexagon: " + x + "," + y + ") " + tileData.getTokenNumber() + " " + tileData.getResourceType());
                 }
                 else{
                     GameObject tile = (GameObject)Instantiate(tilePrefab);
