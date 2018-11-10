@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7ac3b87f1f1ac4497a0019f8987e050e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - hexPrefab: {instanceID: 0}
+  - brickMat: {fileID: 2100000, guid: ff22bb99b051540ac96991186f0b5a2c, type: 2}
+  - woodMat: {fileID: 2100000, guid: 8ac11eabc848e4b74be2a43ce7e6e0d0, type: 2}
+  - sheepMat: {fileID: 2100000, guid: 722b11831283d4d5d983e88f19e1db18, type: 2}
+  - wheatMat: {fileID: 2100000, guid: a623f11215ed341779f5277801a0a7cb, type: 2}
+  - oreMat: {fileID: 2100000, guid: e02552cb055c34c22895bb3312c2a059, type: 2}
+  - desertMat: {fileID: 2100000, guid: d5379bb85e2be45f18540eff391c1a93, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

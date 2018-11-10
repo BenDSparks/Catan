@@ -5,11 +5,12 @@ using UnityEngine;
 public class ClickManager : MonoBehaviour {
 
     public Camera camera;
-    public GameObject GameBoard;
+    public GameObject gameBoard;
+    private GridLogic gridLogic;
 
 	// Use this for initialization
 	void Start () {
-		
+        gridLogic = gameBoard.GetComponent<GridLogic>();
 	}
 	
 	// Update is called once per frame
@@ -22,13 +23,20 @@ public class ClickManager : MonoBehaviour {
 
             for (int i = 0; i < hits.Length; i++){
                 RaycastHit hit = hits[i];
-                if (hit.transform.tag == "Tile")
-                {
-                    Transform objectHit = hit.transform;
+                if (hit.transform.tag == "Tile"){
+                    Transform tile = hit.transform;
 
-                    TileData tileData = objectHit.GetComponent<TileData>();
+                    TileData tileData = tile.GetComponent<TileData>();
+                    int x = tileData.getX();
+                    int y = tileData.getY();
+                    print(string.Concat("Center Tile: (", x, ",", y, ") ",tileData.getTokenNumber(), " ", tileData.getResourceType()));
 
-                    print(string.Concat("Clicked Tile: (", tileData.getX(), ",", tileData.getY(), ") ",tileData.getTokenNumber(), " ", tileData.getResourceType()));
+
+                    //gridLogic.checkIfNextToWater(x, y);
+
+                    gridLogic.testDelete(x, y);
+
+
                     break;
                 }
             }

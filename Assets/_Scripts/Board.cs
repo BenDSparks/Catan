@@ -55,9 +55,12 @@ public class Board
                 ResourceType.Ore,
                 ResourceType.Desert
             };
-            numberTokens = new int[] { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
 
             ShuffleArray(resourceList);
+
+            numberTokens = new int[] { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
+
+            
         }
 
     }

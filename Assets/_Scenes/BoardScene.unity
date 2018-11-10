@@ -179,6 +179,48 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!1001 &780330195
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -3.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4345203876533004, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: beb41691a66ace544be8a31b16e03045, type: 2}
+  m_IsPrefabAsset: 0
 --- !u!1 &1005384828
 GameObject:
   m_ObjectHideFlags: 0
@@ -327,10 +369,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 1869244892276272, guid: b66c4b63246464e62ae7f8d76f0fdfc3, type: 2}
+  settlementPrefab: {fileID: 1545295073807438, guid: beb41691a66ace544be8a31b16e03045,
+    type: 2}
   tokenPrefab: {fileID: 1933064489331964, guid: 054ff00cda4a544f3b158bdd3219a084,
     type: 2}
-  gridWidth: 5
-  gridHeight: 5
+  settlementGameObject: {fileID: 1259739581}
   gap: 0.025
   brickMat: {fileID: 2100000, guid: ff22bb99b051540ac96991186f0b5a2c, type: 2}
   woodMat: {fileID: 2100000, guid: 8ac11eabc848e4b74be2a43ce7e6e0d0, type: 2}
@@ -338,7 +381,7 @@ MonoBehaviour:
   wheatMat: {fileID: 2100000, guid: a623f11215ed341779f5277801a0a7cb, type: 2}
   oreMat: {fileID: 2100000, guid: e02552cb055c34c22895bb3312c2a059, type: 2}
   desertMat: {fileID: 2100000, guid: d5379bb85e2be45f18540eff391c1a93, type: 2}
-  waterMat: {fileID: 0}
+  waterMat: {fileID: 2100000, guid: 3a52269f8e77f4e15b36b8732857d062, type: 2}
 --- !u!1 &1198023755 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1933064489331964, guid: 054ff00cda4a544f3b158bdd3219a084,
@@ -452,6 +495,34 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1208865313}
   m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1259739581
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1259739582}
+  m_Layer: 0
+  m_Name: SettlementSpots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1259739582
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1259739581}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.687973, y: 0.5662646, z: -1.5465069}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1356408209
 GameObject:
   m_ObjectHideFlags: 0
@@ -493,7 +564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1051013277}
-  GameBoard: {fileID: 1089759364}
+  gameBoard: {fileID: 1089759364}
 --- !u!1001 &1522744634
 Prefab:
   m_ObjectHideFlags: 0
