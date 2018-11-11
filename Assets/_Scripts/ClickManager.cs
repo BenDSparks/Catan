@@ -33,8 +33,8 @@ public class ClickManager : MonoBehaviour {
 
 
                     //gridLogic.checkIfNextToWater(x, y);
-
-                    gridLogic.testDelete(x, y);
+                    //deletes 
+                    //gridLogic.testDelete(x, y);
 
 
                     break;

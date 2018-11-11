@@ -1,26 +1,31 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 public class GridLogic : MonoBehaviour
 {
     private Board board;
     public GameObject tilePrefab;
     public GameObject settlementPrefab;
+    public GameObject roadPrefab;
     public GameObject tokenPrefab;
-    public GameObject settlementGameObject;
+    public GameObject settlementSpotsGameObject;
+    public GameObject roadSpotsGameObject;
     private Tile[,] tiles;
     private Settlement[,] settlements;
-    
-
-    private int gridWidth = 7;
-    private int gridHeight = 7;
-    private int settlementCount = 22;
-    private int roadCount = 22;
+    private Road[,] roads;
 
 
-    float hexWidth = 1.732f;
-    float hexHeight = 2.0f;
+
+    private int gridWidth;
+    private int gridHeight;
+    private int settlementWidth;
+    private int roadCount;
+
+
+    private float hexWidth = 1.732f;
+    private float hexHeight = 2.0f;
     public float gap = 0.0f;
 
 
@@ -39,10 +44,23 @@ public class GridLogic : MonoBehaviour
     void Start()
     {
         board = new Board(1);
+        gridHeight = board.getHeight();
+        gridWidth = board.getWidth();
+        if(gridWidth >= gridHeight) {
+            settlementWidth = 2 * gridWidth + 2;
+            roadCount = 2 * gridWidth + 2;
+        }
+        else {
+            settlementWidth = 2 * gridHeight + 2;
+            roadCount = 2 * gridWidth + 2;
+        }
+
         AddGap();
         CalcStartPos();
         CreateHexGrid();
-        CreateSettlementGrid();
+        //CreateSettlementGrid();
+        PlaceSettlements();
+        PlaceRoads();
     }
 
     void AddGap()
@@ -75,24 +93,11 @@ public class GridLogic : MonoBehaviour
         return new Vector3(x, y, -1);
     }
 
-    //Vector3 CalcWorldPosSettlements(Vector2 gridPos) {
-    //    float offset = 0;
-    //    if (gridPos.y % 2 != 0) {
-    //        offset = hexHeight / 2;
-    //    }
-
-    //    float x = startPos.x + gridPos.x * hexWidth + offset;
-    //    float y = startPos.y - gridPos.y * hexHeight * 0.75f;
-
-
-    //    return new Vector3(x, y, -3);
-    //}
-
     //tile Logic
     void CreateHexGrid()
     {
         tiles = new Tile[gridWidth, gridWidth];
-        settlements = new Settlement[22, 22];
+        
 
         int tileIndex = 0;
         int numberTokenIndex = 0;
@@ -114,14 +119,14 @@ public class GridLogic : MonoBehaviour
                     tile.transform.position = CalcWorldPosTiles(gridPos);
                     tileData.setPosition(x, y);
 
-                    tile.transform.name = "Hexagon (" + x + "," + y + ")";
+                    tile.transform.name = "Hexagon (" + x + "," + y + ") " + board.resourceList[tileIndex];
                     
 
                     tiles[x, y] = new Tile(tile,x,y);
 
                     //place the settlements above and below
-                    PlaceTopSettlement(tiles[x, y]);
-                    PlaceBottomSettlement(tiles[x, y]);
+                    //PlaceTopSettlement(tiles[x, y]);
+                    //PlaceBottomSettlement(tiles[x, y]);
 
                     //if not the desert and water
                     if(board.resourceList[tileIndex] != ResourceType.Desert && board.resourceList[tileIndex] != ResourceType.Water){
@@ -131,6 +136,7 @@ public class GridLogic : MonoBehaviour
                         GameObject token = (GameObject)Instantiate(tokenPrefab);
                         tile.transform.parent = tiles[x, y].gameObject.transform;
                         token.transform.position = tile.transform.position;
+                        token.transform.parent = tiles[x,y].gameObject.transform;
 
                         tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
 
@@ -170,12 +176,13 @@ public class GridLogic : MonoBehaviour
                     tileIndex++;
                     //print("Hexagon: " + x + "," + y + ") " + tileData.getTokenNumber() + " " + tileData.getResourceType());
                 }
+                //tile is water
                 else{
                     GameObject tile = (GameObject)Instantiate(tilePrefab);
                     tile.transform.parent = this.transform;
 
                     tiles[x, y] = new Tile(tile, x, y);
-
+                    tiles[x, y].resourceType = ResourceType.Water;
 
                     TileData tileData = tile.GetComponent<TileData>();
 
@@ -203,97 +210,741 @@ public class GridLogic : MonoBehaviour
     //Settlement Logic
     void CreateSettlementGrid() {
         
-        for (int x = 0; x < settlementCount; x++) {
-            for (int y = 0; y < settlementCount; y++) {
+        for (int x = 0; x < settlementWidth; x++) {
+            for (int y = 0; y < settlementWidth; y++) {
                 settlements[x, y] = new Settlement(null, x, y);
             }
         }
 
     }
 
-    void PlaceTopSettlement(Tile tile) {
+    private void PlaceSettlements() {
+        settlements = new Settlement[settlementWidth,settlementWidth];
+
+        //iterate through tiles
+        for (int x = 0; x < tiles.GetLength(0); x++) {
+            for (int y = 0; y < tiles.GetLength(1); y++) {
+                
+
+                //if the tile is not water place top and bottom settlements
+                if (tiles[x, y].resourceType != ResourceType.Water) {
+                    
+                    PlaceTopSettlement(tiles[x, y]);
+                    PlaceBottomSettlement(tiles[x, y]);
+                }
+                //if the tile is water, look top left, top right, bottom left, bottom right and fill settlements in as needed.
+                else {
+                    Tile[] surroundingTiles = GetNeighbors(x,y);
+                    //top left tile is there and it isnt water
+                    if (surroundingTiles[(int)TileDirection.TopLeft] != null && surroundingTiles[(int)TileDirection.TopLeft].resourceType != ResourceType.Water) {
+                        PlaceTopSettlement(tiles[x, y]);
+                    }
+                    //top right
+                    else if (surroundingTiles[(int)TileDirection.TopRight] != null && surroundingTiles[(int)TileDirection.TopRight].resourceType != ResourceType.Water) {
+                        PlaceTopSettlement(tiles[x, y]);
+                    }
+                    //bottom right
+                    else if (surroundingTiles[(int)TileDirection.BottomRight] != null && surroundingTiles[(int)TileDirection.BottomRight].resourceType != ResourceType.Water) {
+                        PlaceBottomSettlement(tiles[x, y]);
+                    }
+                    //bottom left
+                    else if (surroundingTiles[(int)TileDirection.BottomLeft] != null && surroundingTiles[(int)TileDirection.BottomLeft].resourceType != ResourceType.Water) {
+                        PlaceBottomSettlement(tiles[x, y]);
+                    }
+                }
+            }
+        }
+    }
+
+    private void PlaceTopSettlement(Tile tile) {
+        int tileX = tile.x;
+        int tileY = tile.y;
+        int offset = tileY % 2;
+        int x = (2 * tileX) + 1 + offset;
+        int y = tileY;
+        //print("Placing settlement around tile (" + x + "," + y + ")");
+        //create game object, place in hierarchy, set name
         GameObject settlement = (GameObject)Instantiate(settlementPrefab);
-        settlement.transform.parent = settlementGameObject.transform;
 
-        //set tile position
-        Vector2 gridPos = new Vector2(tile.x,tile.y);
+        settlement.transform.parent = settlementSpotsGameObject.transform;
+        //settlement.transform.parent = tile.gameObject.transform;
+
+        settlement.transform.name = "Settlement (" + x + "," + y + ")";
+
+        //set settlement position
+        Vector2 gridPos = new Vector2(tileX,tileY);
         Vector3 worldPos = CalcWorldPosTiles(gridPos);
-
         worldPos.y = worldPos.y + (hexHeight / 2);
-
         settlement.transform.position = worldPos;
+
         //tile.transform.position = CalcWorldPosTiles(gridPos);
+        settlements[x, y] = new Settlement(settlement,x,y);
+
         
 
-
-        //TODO set settlement into the grid for data purposes
-
     }
 
-    void PlaceBottomSettlement(Tile tile) {
+    private void PlaceBottomSettlement(Tile tile) {
+        int tileX = tile.x;
+        int tileY = tile.y;
+        int offset = tileY % 2;
+        int x = (2 * tileX) + 1 + offset;
+        int y = tileY + 1;
+        //print("Placing settlement around tile (" + x + "," + y + ")");
+        //create game object, place in hierarchy, set name
+
+
         GameObject settlement = (GameObject)Instantiate(settlementPrefab);
-        settlement.transform.parent = settlementGameObject.transform;
 
-        //set tile position
-        Vector2 gridPos = new Vector2(tile.x, tile.y);
+        settlement.transform.parent = settlementSpotsGameObject.transform;
+        //settlement.transform.parent = tile.gameObject.transform;
+
+        settlement.transform.name = "Settlement (" + x + "," + y + ")";
+
+        //set settlement position
+        Vector2 gridPos = new Vector2(tileX, tileY);
         Vector3 worldPos = CalcWorldPosTiles(gridPos);
-
         worldPos.y = worldPos.y - (hexHeight / 2);
-
         settlement.transform.position = worldPos;
+
+        //tile.transform.position = CalcWorldPosTiles(gridPos);
+        settlements[x, y] = new Settlement(settlement, x, y);
+
+
+
     }
+
+    private void PlaceRoads() {
+        roads = new Road[roadCount, roadCount];
+
+        for (int x = 0; x < tiles.GetLength(0); x++) {
+            for (int y = 0; y < tiles.GetLength(1); y++) {
+
+                if (tiles[x,y].resourceType != ResourceType.Water) {
+                    PlaceRoadsOnAllSides(tiles[x,y]);
+                }
+                else {
+                    Tile[] surroundingTiles = GetNeighbors(x, y);
+
+                    if (surroundingTiles[(int)TileDirection.Left] != null && surroundingTiles[(int)TileDirection.Left].resourceType != ResourceType.Water) {
+                        PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.Left);
+                    }
+                    if (surroundingTiles[(int)TileDirection.TopLeft] != null && surroundingTiles[(int)TileDirection.TopLeft].resourceType != ResourceType.Water) {
+                        PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.TopLeft);
+                    }
+                    if(surroundingTiles[(int)TileDirection.BottomLeft] != null && surroundingTiles[(int)TileDirection.BottomLeft].resourceType != ResourceType.Water) {
+                        PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.BottomLeft);
+                    }
+                }
+
+
+                //Tile[] surroundingTiles = GetNeighbors(x, y);
+                
+            }
+        }
+
+    }
+
+    private void PlaceRoadsOnAllSides(Tile tile) {
+        int tileX = tile.x;
+        int tileY = tile.y;
+        int offset = tileY % 2;
+        int xLeft = 2 * tileX + offset;
+        int yLeft = 2 * tileY + 1;
+        int xTopLeft = 2 * tileX + offset;
+        int yTopLeft = 2 * tileY;
+        int xBottomLeft = 2 * tileX + offset;
+        int yBottomLeft = 2 * tileY + 2;
+
+        //left
+        //      roads[2 * x + offset, 2 * y + 1],
+        //    //top left
+        //    roads[2 * x + offset, 2 * y],
+        //    //top right
+        //    roads[2 * x + 1 + offset, 2 * y],
+        //    //right
+        //    roads[2 * x + 2 + offset, 2 * y + 1],
+        //    //bottom right
+        //    roads[2 * x + 1 + offset, 2 * y + 2],
+        //    //bottom left
+        //    roads[2 * x + offset, 2 * y + 2]
+
+        //left
+        GameObject road = (GameObject)Instantiate(roadPrefab);
+        road.transform.parent = roadSpotsGameObject.transform;
+        road.transform.parent = tile.gameObject.transform;
+        road.transform.name = "RoadL (" + xLeft + "," + yLeft + ")";
+
+        Vector2 gridPos = new Vector2(tileX, tileY);
+        Vector3 worldPos = CalcWorldPosTiles(gridPos);
+        worldPos.x = worldPos.x - (hexWidth / 2);
+        road.transform.position = worldPos;
+        
+
+        roads[xLeft, yLeft] = new Road(road, xLeft, yLeft);
+
+
+
+        //top left
+        road = (GameObject)Instantiate(roadPrefab);
+        road.transform.parent = roadSpotsGameObject.transform;
+        road.transform.parent = tile.gameObject.transform;
+
+        road.transform.name = "RoadTL (" + xTopLeft + "," + yTopLeft + ")";
+
+        gridPos = new Vector2(tileX, tileY);
+        worldPos = CalcWorldPosTiles(gridPos);
+        worldPos.x = worldPos.x - (hexWidth / 4);
+        worldPos.y = worldPos.y + (hexHeight /3);
+        road.transform.position = worldPos;
+        road.transform.Rotate(0, 0, -60, Space.Self);
+        roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+
+        //bottom left
+        road = (GameObject)Instantiate(roadPrefab);
+        road.transform.parent = roadSpotsGameObject.transform;
+        road.transform.parent = tile.gameObject.transform;
+        road.transform.Rotate(0, 0, 60, Space.Self);
+        road.transform.name = "RoadBL (" + xBottomLeft + "," + yBottomLeft + ")";
+
+        gridPos = new Vector2(tileX, tileY);
+        worldPos = CalcWorldPosTiles(gridPos);
+        worldPos.x = worldPos.x - (hexWidth / 4);
+        worldPos.y = worldPos.y - (hexHeight / 3);
+        road.transform.position = worldPos;
+        roads[xBottomLeft, yBottomLeft] = new Road(road, xBottomLeft, yBottomLeft);
+
+
+        
+    }
+
+
+    //      left
+    //      roads[2 * x + offset, 2 * y + 1], 3rd
+    //    //top left
+    //    roads[2 * x + offset, 2 * y],  1st
+    //    //top right
+    //    roads[2 * x + 1 + offset, 2 * y], 2nd
+    //    //right
+    //    roads[2 * x + 2 + offset, 2 * y + 1], 4th
+    //    //bottom right
+    //    roads[2 * x + 1 + offset, 2 * y + 2], 5th
+    //    //bottom left
+    //    roads[2 * x + offset, 2 * y + 2] 6th
+
+
+    private void PlaceRoadsOnCertainlSides(Tile tile, TileDirection tileDirection) {
+        int tileX = tile.x;
+        int tileY = tile.y;
+        int offset = tileY % 2;
+        int xLeft = (2 * tileX) + offset;
+        int yLeft = 2 * tileY + 1;
+        int xTopLeft = 2 * tileX + offset;
+        int yTopLeft = 2 * tileY;
+        int xBottomLeft = 2 * tileX + 1 + offset;
+        int yBottomLeft = 2 * tileY + 2;
+
+
+        //left
+        if(tileDirection == TileDirection.Left) {
+            GameObject road = (GameObject)Instantiate(roadPrefab);
+            road.transform.parent = roadSpotsGameObject.transform;
+            road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
+
+            Vector2 gridPos = new Vector2(tileX, tileY);
+            Vector3 worldPos = CalcWorldPosTiles(gridPos);
+            worldPos.x = worldPos.x - (hexWidth / 2);
+            road.transform.position = worldPos;
+            roads[xLeft, yLeft] = new Road(road, xLeft, yLeft);
+        }
+
+        //top left
+        if (tileDirection == TileDirection.TopLeft) {          
+            GameObject road = (GameObject)Instantiate(roadPrefab);
+            road.transform.parent = roadSpotsGameObject.transform;
+            road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
+      
+            Vector2 gridPos = new Vector2(tileX, tileY);
+            Vector3 worldPos = CalcWorldPosTiles(gridPos);
+            worldPos.x = worldPos.x - (hexWidth / 4);
+            worldPos.y = worldPos.y + (hexHeight / 3);
+            road.transform.position = worldPos;
+            road.transform.Rotate(0, 0, -60, Space.Self);
+            roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+        }
+
+
+        //bottom left
+        if (tileDirection == TileDirection.BottomLeft) {
+            GameObject road = (GameObject)Instantiate(roadPrefab);
+            road.transform.parent = roadSpotsGameObject.transform;
+            road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
+
+            Vector2 gridPos = new Vector2(tileX, tileY);
+            Vector3 worldPos = CalcWorldPosTiles(gridPos);
+            worldPos.x = worldPos.x - (hexWidth / 4);
+            worldPos.y = worldPos.y - (hexHeight / 3);
+            road.transform.position = worldPos;
+            road.transform.Rotate(0, 0, 60, Space.Self);
+            roads[xBottomLeft, yBottomLeft] = new Road(road, xBottomLeft, yBottomLeft);
+        }
+        
+    }
+
+
+    //GameObject PlaceBottomSettlement(Tile tile) {
+    //    GameObject settlement = (GameObject)Instantiate(settlementPrefab);
+    //    settlement.transform.parent = settlementGameObject.transform;
+
+    //    //set tile position
+    //    Vector2 gridPos = new Vector2(tile.x, tile.y);
+    //    Vector3 worldPos = CalcWorldPosTiles(gridPos);
+
+    //    worldPos.y = worldPos.y - (hexHeight / 2);
+
+    //    settlement.transform.position = worldPos;
+
+    //    return settlement;
+    //}
 
     public Tile[] GetNeighbors(Tile tile) {
+        return GetNeighbors(tile.x, tile.y);
+    }
+
+    public Tile[] GetNeighbors(int x, int y) {
+
+        //if center tiles in the grid
+        if (x > 0 && x < gridWidth-1 && y > 0 && y < gridHeight-1) {
+            //even y
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x-1,y-1],
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    tiles[x-1,y+1]
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    tiles[x+1,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x+1,y+1],
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        //top left of the grid
+        else if (x == 0 && y == 0) {
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    null
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x+1,y+1],
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        //top right
+        else if (x == gridWidth - 1 && y == 0) {
+            //even y
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    null,
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    tiles[x-1,y+1]
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    null,
+                    //bottom right
+                    null,
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        //bottom right
+        else if (x == gridWidth - 1 && y == gridHeight - 1) {
+            //even y
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x-1,y-1],
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    null,
+                    //bottom right
+                    null,
+                    //bottom left
+                    null
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    null,
+                    //right tile
+                    null,
+                    //bottom right
+                    null,
+                    //bottom left
+                    null,
+                };
+            }
+        }
+        //bottom left
+        else if (x == 0 && y == gridHeight - 1) {
+            //even y
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    null,
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    null,
+                    //bottom left
+                    null
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    tiles[x+1,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    null,
+                    //bottom left
+                    null
+                };
+            }
+        }
+        //top row
+        else if (x > 0 && x < gridWidth - 1 && y == 0) {
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    tiles[x-1,y+1]
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    null,
+                    //top right
+                    null,
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x+1,y+1],
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        //right column
+        else if (x == gridWidth - 1 && y > 0 && y < gridHeight - 1) {
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x-1,y-1],
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    null,
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    tiles[x-1,y+1]
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    null,
+                    //right tile
+                    null,
+                    //bottom right
+                    null,
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        //bottom row
+        else if (x > 0 && x < gridWidth - 1 && y == gridHeight - 1) {
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x-1,y-1],
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    null,
+                    //bottom left
+                    null
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    tiles[x-1,y],
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    tiles[x+1,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    null,
+                    //bottom left
+                    null
+                };
+            }
+        }
+        //left column
+        else if (x == 0 && y > 0 && y < gridHeight - 1) {
+            if (y % 2 == 0) {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    null,
+                    //top right
+                    tiles[x,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x,y+1],
+                    //bottom left
+                    null
+                };
+            }
+            //odd y
+            else {
+                return new[] {
+                    //left tile
+                    null,
+                    //top left
+                    tiles[x,y-1],
+                    //top right
+                    tiles[x+1,y-1],
+                    //right tile
+                    tiles[x+1,y],
+                    //bottom right
+                    tiles[x+1,y+1],
+                    //bottom left
+                    tiles[x,y+1]
+                };
+            }
+        }
+        else {
+            return new[] {
+                //left tile
+                tiles[x,y],
+                //top left
+                tiles[x,y],
+                //top right
+                tiles[x,y],
+                //right tile
+                tiles[x,y],
+                //bottom right
+                tiles[x,y],
+                //bottom left
+                tiles[x,y]
+            };
+        }
+    }
+
+    public Settlement[] GetSettlements(Tile tile) {
         int x = tile.x;
         int y = tile.y;
-        int offset = y % 2 == 0 ? -1 : 1;
-        return new[] {
-            //right tile
-            tiles[x+1,y],
-            //left tile
-            tiles[x-1,y],
-            tiles[x,y+1],
-            tiles[x,y-1],
-            tiles[x+offset,y+1],
-            tiles[x+offset,y-1]
 
+        var offset = y % 2;
+
+        //return each vertex from north eastern point clockwise
+
+        return new[]
+        {
+            //top left
+            settlements[2*x+offset,y],
+            //top
+            settlements[2*x+1+offset,y],
+            //top right
+            settlements[2*x+2+offset,y],
+            //bottom right
+            settlements[2*x+2+offset,y+1],
+            //bottom
+            settlements[2*x+1+offset,y+1],
+            //bottom left
+            settlements[2*x+offset,y+1]
+            
+            
         };
+
+    }
+
+    public Road[] GetRoads(int x, int y) {
+        int offset = y % 2;
+        return new[]
+        {
+            //left
+            roads[2*x+offset,2*y+1],
+            //top left
+            roads[2*x+offset,2*y],
+            //top right
+            roads[2*x+1+offset,2*y],
+            //right
+            roads[2*x+2+offset,2*y+1],
+            //bottom right
+            roads[2*x+1+offset,2*y+2],
+            //bottom left
+            roads[2*x+offset,2*y+2]
+        };
+
     }
 
     public void checkIfNextToWater(int x, int y) {
         Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
-
         for (int i = 0; i < surroundingTiles.Length; i++) {
             TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
-
-    print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
+            print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
         }
     }
 
     public void testDelete(int x, int y) {
-        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
+        StartCoroutine(DeleteTilesCoroutine(x, y));
+    }
 
+    IEnumerator DeleteTilesCoroutine(int x, int y) {
+        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
         for (int i = 0; i < surroundingTiles.Length; i++) {
             TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
 
             print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
 
             Destroy(surroundingTiles[i].gameObject);
+            yield return new WaitForSeconds(1);
+
         }
     }
 
-    //public IEnumerable<Tile> GetNeighbors(Tile tile) {
-    //    var x = tile.getX; var y = tile.getY;
-    //    var offset = x % 2 == 0 ? +1 : -1;
-    //    return new[]
-    //    {
-    //        Hexes[x,y+1],
-    //        Hexes[x,y-1],
-    //        Hexes[x+1,y],
-    //        Hexes[x-1,y],
-    //        Hexes[x+1,y+offset],
-    //        Hexes[x-1,y+offset],
-    //    };
-    //}
 
-}
+        //public IEnumerable<Tile> GetNeighbors(Tile tile) {
+        //    var x = tile.getX; var y = tile.getY;
+        //    var offset = x % 2 == 0 ? +1 : -1;
+        //    return new[]
+        //    {
+        //        Hexes[x,y+1],
+        //        Hexes[x,y-1],
+        //        Hexes[x+1,y],
+        //        Hexes[x-1,y],
+        //        Hexes[x+1,y+offset],
+        //        Hexes[x-1,y+offset],
+        //    };
+        //}
+
+    }

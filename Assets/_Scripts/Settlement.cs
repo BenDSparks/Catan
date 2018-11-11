@@ -14,10 +14,6 @@ public class Settlement {
         this.y = y;
     }
 
-    public Settlement() {
-        gameObject = new GameObject();
-    }
-
     public int getX() {
         return x;
     }

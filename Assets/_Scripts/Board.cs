@@ -16,7 +16,13 @@ public class Board
     //number tokens for tile numbers
     public int[] numberTokens;
 
+    public int getHeight() {
+        return height;
+    }
 
+    public int getWidth() {
+        return width;
+    }
 
     public Board(int boardNumber)
     {
