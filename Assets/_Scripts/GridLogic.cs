@@ -55,7 +55,7 @@ public class GridLogic : MonoBehaviour
             roadCount = 2 * gridWidth + 2;
         }
 
-        //AddGap();
+        AddGap();
         CalcStartPos();
         CreateHexGrid();
         //CreateSettlementGrid();
@@ -305,7 +305,7 @@ public class GridLogic : MonoBehaviour
         worldPos.y = worldPos.y - (hexHeight / 2);
         settlement.transform.position = worldPos;
 
-        //tile.transform.position = CalcWorldPosTiles(gridPos);
+
         settlements[x, y] = new Settlement(settlement, x, y);
 
 
@@ -327,10 +327,13 @@ public class GridLogic : MonoBehaviour
                     if (surroundingTiles[(int)TileDirection.Left] != null && surroundingTiles[(int)TileDirection.Left].resourceType != ResourceType.Water) {
                         PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.Left);
                     }
-                    if (surroundingTiles[(int)TileDirection.TopLeft] != null && surroundingTiles[(int)TileDirection.TopLeft].resourceType != ResourceType.Water) {
-                        PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.TopLeft);
+                    //if (surroundingTiles[(int)TileDirection.TopLeft] != null && surroundingTiles[(int)TileDirection.TopLeft].resourceType != ResourceType.Water) {
+                    //    PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.TopLeft);
+                    //}
+                    if (surroundingTiles[(int)TileDirection.BottomRight] != null && surroundingTiles[(int)TileDirection.BottomRight].resourceType != ResourceType.Water) {
+                        PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.BottomRight);
                     }
-                    if(surroundingTiles[(int)TileDirection.BottomLeft] != null && surroundingTiles[(int)TileDirection.BottomLeft].resourceType != ResourceType.Water) {
+                    if (surroundingTiles[(int)TileDirection.BottomLeft] != null && surroundingTiles[(int)TileDirection.BottomLeft].resourceType != ResourceType.Water) {
                         PlaceRoadsOnCertainlSides(tiles[x, y], TileDirection.BottomLeft);
                     }
                 }
@@ -349,8 +352,10 @@ public class GridLogic : MonoBehaviour
         int offset = tileY % 2;
         int xLeft = 2 * tileX + offset;
         int yLeft = 2 * tileY + 1;
-        int xTopLeft = 2 * tileX + offset;
-        int yTopLeft = 2 * tileY;
+        //int xTopLeft = 2 * tileX + offset;
+        //int yTopLeft = 2 * tileY;
+        int xBottomRight = 2 * tileX + offset;
+        int yBottomRight = 2 * tileY + 2;
         int xBottomLeft = 2 * tileX + offset;
         int yBottomLeft = 2 * tileY + 2;
 
@@ -370,6 +375,7 @@ public class GridLogic : MonoBehaviour
         //left
         GameObject road = (GameObject)Instantiate(roadPrefab);
         road.transform.parent = roadSpotsGameObject.transform;
+
         //road.transform.parent = tile.gameObject.transform;
         road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
 
@@ -381,20 +387,36 @@ public class GridLogic : MonoBehaviour
 
         roads[xLeft, yLeft] = new Road(road, xLeft, yLeft);
 
+        ////top left
+        //road = (GameObject)Instantiate(roadPrefab);
+        //road.transform.parent = roadSpotsGameObject.transform;
+        ////road.transform.parent = tile.gameObject.transform;
+
+        //road.transform.name = "Road (" + xTopLeft + "," + yTopLeft + ")";
+
+        //gridPos = new Vector2(tileX, tileY);
+        //worldPos = CalcWorldPosTiles(gridPos);
+        //worldPos.x = worldPos.x - (hexWidth / 4) - (gap/2);
+        //worldPos.y = worldPos.y + (hexHeight /3) + (gap/2);
+        //road.transform.position = worldPos;
+        //road.transform.Rotate(0, 0, -60, Space.Self);
+        //roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+
         //top left
         road = (GameObject)Instantiate(roadPrefab);
         road.transform.parent = roadSpotsGameObject.transform;
         //road.transform.parent = tile.gameObject.transform;
 
-        road.transform.name = "Road (" + xTopLeft + "," + yTopLeft + ")";
+        road.transform.name = "Road (" + xBottomRight + "," + yBottomRight + ")";
 
         gridPos = new Vector2(tileX, tileY);
         worldPos = CalcWorldPosTiles(gridPos);
-        worldPos.x = worldPos.x - (hexWidth / 4) - (gap/2);
-        worldPos.y = worldPos.y + (hexHeight /3) + (gap/2);
+        worldPos.x = worldPos.x + ((hexWidth / 4) - (gap / 2));
+        worldPos.y = worldPos.y - (hexHeight / 3) - (gap );
         road.transform.position = worldPos;
         road.transform.Rotate(0, 0, -60, Space.Self);
-        roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+        roads[xBottomRight, yBottomRight] = new Road(road, xBottomRight, yBottomRight);
+
 
         //bottom left
         road = (GameObject)Instantiate(roadPrefab);
@@ -406,7 +428,7 @@ public class GridLogic : MonoBehaviour
         gridPos = new Vector2(tileX, tileY);
         worldPos = CalcWorldPosTiles(gridPos);
         worldPos.x = worldPos.x - (hexWidth / 4) - (gap / 2);
-        worldPos.y = worldPos.y - (hexHeight / 3)  - (gap/2);
+        worldPos.y = worldPos.y - (hexHeight / 3)  - (gap);
         road.transform.position = worldPos;
         roads[xBottomLeft, yBottomLeft] = new Road(road, xBottomLeft, yBottomLeft);
 
@@ -435,8 +457,10 @@ public class GridLogic : MonoBehaviour
         int offset = tileY % 2;
         int xLeft = (2 * tileX) + offset;
         int yLeft = 2 * tileY + 1;
-        int xTopLeft = 2 * tileX + offset;
-        int yTopLeft = 2 * tileY;
+        //int xTopLeft = 2 * tileX + offset;
+        //int yTopLeft = 2 * tileY;
+        int xBottomRight = 2 * tileX + offset;
+        int yBottomRight = 2 * tileY + 2;
         int xBottomLeft = 2 * tileX + 1 + offset;
         int yBottomLeft = 2 * tileY + 2;
 
@@ -454,19 +478,35 @@ public class GridLogic : MonoBehaviour
             roads[xLeft, yLeft] = new Road(road, xLeft, yLeft);
         }
 
-        //top left
-        if (tileDirection == TileDirection.TopLeft) {          
+        ////top left
+        //if (tileDirection == TileDirection.TopLeft) {          
+        //    GameObject road = (GameObject)Instantiate(roadPrefab);
+        //    road.transform.parent = roadSpotsGameObject.transform;
+        //    road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
+      
+        //    Vector2 gridPos = new Vector2(tileX, tileY);
+        //    Vector3 worldPos = CalcWorldPosTiles(gridPos);
+        //    worldPos.x = worldPos.x - (hexWidth / 4);
+        //    worldPos.y = worldPos.y + (hexHeight / 3);
+        //    road.transform.position = worldPos;
+        //    road.transform.Rotate(0, 0, -60, Space.Self);
+        //    roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+        //}
+        
+
+        //bottom right
+        if (tileDirection == TileDirection.BottomRight) {
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
-            road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
-      
+            road.transform.name = "Road (" + xBottomRight + "," + yBottomRight + ")";
+
             Vector2 gridPos = new Vector2(tileX, tileY);
             Vector3 worldPos = CalcWorldPosTiles(gridPos);
-            worldPos.x = worldPos.x - (hexWidth / 4);
-            worldPos.y = worldPos.y + (hexHeight / 3);
+            worldPos.x = worldPos.x + ((hexWidth / 4) - (gap / 2));
+            worldPos.y = worldPos.y - (hexHeight / 3) - (gap );
             road.transform.position = worldPos;
             road.transform.Rotate(0, 0, -60, Space.Self);
-            roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
+            roads[xBottomRight, yBottomRight] = new Road(road, xBottomRight, yBottomRight);
         }
 
 
@@ -479,7 +519,7 @@ public class GridLogic : MonoBehaviour
             Vector2 gridPos = new Vector2(tileX, tileY);
             Vector3 worldPos = CalcWorldPosTiles(gridPos);
             worldPos.x = worldPos.x - (hexWidth / 4);
-            worldPos.y = worldPos.y - (hexHeight / 3);
+            worldPos.y = worldPos.y - (hexHeight / 3) - (gap);
             road.transform.position = worldPos;
             road.transform.Rotate(0, 0, 60, Space.Self);
             roads[xBottomLeft, yBottomLeft] = new Road(road, xBottomLeft, yBottomLeft);
