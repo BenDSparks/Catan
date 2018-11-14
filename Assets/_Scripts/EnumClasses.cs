@@ -11,3 +11,7 @@ public enum TileDirection {
 public enum RoadDirection {
     Left, TopLeft, TopRight, Right, BottomRight, BottomLeft
 }
+
+public enum PlayerColor {
+    Red, Blue, Orange, White, Green, Brown
+}
