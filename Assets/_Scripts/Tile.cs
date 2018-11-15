@@ -9,11 +9,12 @@ public class Tile
     public int x;
     public int y;
 
-    public Tile(GameObject gObject,int x, int y)
+    public Tile(GameObject gObject, int x, int y, ResourceType resourceType)
     {
         this.gameObject = gObject;
         this.x = x;
-        this.y = y; 
+        this.y = y;
+        this.resourceType = resourceType;
     }
 
     public Tile(){

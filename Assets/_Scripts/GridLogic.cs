@@ -20,6 +20,7 @@ public class GridLogic : MonoBehaviour
 
     private int gridWidth;
     private int gridHeight;
+    private Tile[] tokenOrder;
     private int settlementWidth;
     private int roadCount;
 
@@ -44,6 +45,7 @@ public class GridLogic : MonoBehaviour
     void Start()
     {
         board = new Board(1);
+        tokenOrder = new Tile[board.TileCount];
         gridHeight = board.getHeight();
         gridWidth = board.getWidth();
         if(gridWidth >= gridHeight) {
@@ -58,6 +60,7 @@ public class GridLogic : MonoBehaviour
         AddGap();
         CalcStartPos();
         CreateHexGrid();
+        PlaceNumberTokens();
         //CreateSettlementGrid();
         PlaceSettlements();
         PlaceRoads();
@@ -106,52 +109,56 @@ public class GridLogic : MonoBehaviour
         for (int y = 0; y < gridHeight; y++) {
             for (int x = 0; x < gridWidth; x++) {
                 //the partOfTheBoard is inversed to be eaiser to write boards
-                if(board.partOfTheBoard[y,x]){
-                 
+                if(board.partOfTheBoard[y,x] != -1){
+                    
                     //create tile
-                    GameObject tile = (GameObject)Instantiate(tilePrefab);
-                    tile.transform.parent = this.transform;
+                    GameObject tileGameObject = (GameObject)Instantiate(tilePrefab);
+                    tileGameObject.transform.parent = this.transform;
 
-                    TileData tileData = tile.GetComponent<TileData>();
+                    TileData tileData = tileGameObject.GetComponent<TileData>();
 
                     //set tile position
                     Vector2 gridPos = new Vector2(x, y);
-                    tile.transform.position = CalcWorldPosTiles(gridPos);
+                    tileGameObject.transform.position = CalcWorldPosTiles(gridPos);
                     tileData.setPosition(x, y);
 
-                    tile.transform.name = "Hexagon (" + x + "," + y + ") " + board.resourceList[tileIndex];
+                    tileGameObject.transform.name = "Hexagon (" + x + "," + y + ") " + board.resourceList[tileIndex];
                     
 
-                    tiles[x, y] = new Tile(tile,x,y);
+                    tiles[x, y] = new Tile(tileGameObject,x,y,board.resourceList[tileIndex]);
+                    tokenOrder[board.partOfTheBoard[y, x]] = tiles[x, y];
 
                     //place the settlements above and below
                     //PlaceTopSettlement(tiles[x, y]);
                     //PlaceBottomSettlement(tiles[x, y]);
 
                     //if not the desert and water
-                    if(board.resourceList[tileIndex] != ResourceType.Desert && board.resourceList[tileIndex] != ResourceType.Water){
-                        //set the resource number
-                        tiles[x, y].resourceNumber = board.numberTokens[numberTokenIndex];
-                        //create a token
-                        GameObject token = (GameObject)Instantiate(tokenPrefab);
-                        tile.transform.parent = tiles[x, y].gameObject.transform;
-                        token.transform.position = tile.transform.position;
-                        token.transform.parent = tiles[x, y].gameObject.transform;
+                    if (board.resourceList[tileIndex] != ResourceType.Desert && board.resourceList[tileIndex] != ResourceType.Water){
+                        ////set the resource number
+                        //tiles[x, y].resourceNumber = board.numberTokens[numberTokenIndex];
+                        ////create a token
+                        //GameObject token = (GameObject)Instantiate(tokenPrefab);
+                        //tile.transform.parent = tiles[x, y].gameObject.transform;
+                        //token.transform.position = tile.transform.position;
+                        //token.transform.parent = tiles[x, y].gameObject.transform;
 
-                        TextMesh textMesh = token.GetComponentInChildren<TextMesh>();
-                        textMesh.text = board.numberTokens[numberTokenIndex].ToString();
+                        //TextMesh textMesh = token.GetComponentInChildren<TextMesh>();
+                        //textMesh.text = board.numberTokens[numberTokenIndex].ToString();
 
-                        if (board.numberTokens[numberTokenIndex] == 6 || board.numberTokens[numberTokenIndex] == 8) {
-                            //make font red
-                        }
+                        
 
-                        tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
+                        //if (board.numberTokens[numberTokenIndex] == 6 || board.numberTokens[numberTokenIndex] == 8) {
+                        //    //make font red
+                        //    textMesh.color = Color.red;
+                        //}
+
+                        //tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
 
 
-                        numberTokenIndex++;
+                        //numberTokenIndex++;
                     }
 
-                    MeshRenderer meshRenderer = tile.GetComponentInChildren<MeshRenderer>();
+                    MeshRenderer meshRenderer = tileGameObject.GetComponentInChildren<MeshRenderer>();
                     switch(board.resourceList[tileIndex]){
                         case ResourceType.Brick:
                             meshRenderer.material = brickMat;
@@ -188,8 +195,8 @@ public class GridLogic : MonoBehaviour
                     GameObject tile = (GameObject)Instantiate(tilePrefab);
                     tile.transform.parent = this.transform;
 
-                    tiles[x, y] = new Tile(tile, x, y);
-                    tiles[x, y].resourceType = ResourceType.Water;
+                    tiles[x, y] = new Tile(tile, x, y, ResourceType.Water);
+                    //tiles[x, y].resourceType = ResourceType.Water;
 
                     TileData tileData = tile.GetComponent<TileData>();
 
@@ -215,6 +222,37 @@ public class GridLogic : MonoBehaviour
 
     }
    
+    void PlaceNumberTokens() {
+        int numberTokenIndex = 0;
+        for (int i = 0; i < tokenOrder.Length; i++) {
+            
+            if (tokenOrder[i].resourceType != ResourceType.Desert) {
+                //place number token
+                //set the resource number
+                tokenOrder[i].resourceNumber = board.numberTokens[numberTokenIndex];
+                print("(" + tokenOrder[i].x + "," + tokenOrder[i].y + ") " + tokenOrder[i].resourceNumber + tokenOrder[i].resourceType);
+                //create a token
+                GameObject token = (GameObject)Instantiate(tokenPrefab);
+                token.transform.position = tokenOrder[i].gameObject.transform.position;
+                token.transform.parent =tokenOrder[i].gameObject.transform;
+
+                TextMesh textMesh = token.GetComponentInChildren<TextMesh>();
+                textMesh.text = board.numberTokens[numberTokenIndex].ToString();
+
+
+
+                if (board.numberTokens[numberTokenIndex] == 6 || board.numberTokens[numberTokenIndex] == 8) {
+                    //make font red
+                    textMesh.color = Color.red;
+                }
+
+                //tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
+
+
+                numberTokenIndex++;
+            }
+        }
+    }
 
     private void PlaceSettlements() {
         settlements = new Settlement[settlementWidth,settlementWidth];

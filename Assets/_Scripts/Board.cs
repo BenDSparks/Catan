@@ -6,15 +6,28 @@ public class Board
     //height and width of grid
     private int width;
     private int height;
+    private int tileCount;
 
     //bool saying if this tile is water or not
-    public bool[,] partOfTheBoard;
+    public int[,] partOfTheBoard;
 
     //list of resources to randomize
     public ResourceType[] resourceList;
 
     //number tokens for tile numbers
     public int[] numberTokens;
+
+    public int TileCount {
+        get {
+            return tileCount;
+        }
+
+        set {
+            tileCount = value;
+        }
+    }
+
+  
 
     public int getHeight() {
         return height;
@@ -24,21 +37,24 @@ public class Board
         return width;
     }
 
+    
+
     public Board(int boardNumber)
     {
         if (boardNumber == 1)
         {
             width = 7;
             height = 7;
-            partOfTheBoard = new bool[,]
+            tileCount = 19;
+            partOfTheBoard = new int[,]
             {
-                {false,false,false,false,false,false,false},
-                {false,false,true,true,true,false,false},
-                {false,false,true,true,true,true,false},
-                {false,true,true,true,true,true,false},
-                {false,false,true,true,true,true,false},
-                {false,false,true,true,true,false,false},
-                {false,false,false,false,false,false,false}
+                {-1,-1,-1,-1,-1,-1,-1},
+                {-1,-1,0,1,2,-1,-1},
+                {-1,-1,11,12,13,3,-1},
+                {-1,10,17,18,14,4,-1},
+                {-1,-1,9,16,15,5,-1},
+                {-1,-1,8,7,6,-1,-1},
+                {-1,-1,-1,-1,-1,-1,-1}
             };
             resourceList = new ResourceType[] {
                 ResourceType.Brick,
@@ -66,6 +82,7 @@ public class Board
 
             numberTokens = new int[] { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
 
+
             
         }
 
@@ -86,6 +103,7 @@ public class Board
 
 
     }
+    
     
 }
 
