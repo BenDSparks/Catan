@@ -716,6 +716,7 @@ MonoBehaviour:
   oreMat: {fileID: 2100000, guid: e02552cb055c34c22895bb3312c2a059, type: 2}
   desertMat: {fileID: 2100000, guid: d5379bb85e2be45f18540eff391c1a93, type: 2}
   waterMat: {fileID: 2100000, guid: 3a52269f8e77f4e15b36b8732857d062, type: 2}
+  highlightMat: {fileID: 0}
 --- !u!1 &1208865313
 GameObject:
   m_ObjectHideFlags: 0
@@ -825,7 +826,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1259739581}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -1.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

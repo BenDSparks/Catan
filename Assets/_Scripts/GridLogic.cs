@@ -29,6 +29,7 @@ public class GridLogic : MonoBehaviour
     private float hexHeight = 2.0f;
     public float gap = 0.0f;
 
+    private bool isStartingPhase;
 
 
     public Material brickMat;
@@ -38,6 +39,8 @@ public class GridLogic : MonoBehaviour
     public Material oreMat;
     public Material desertMat;
     public Material waterMat;
+
+    public Material highlightMat;
 
 
     Vector3 startPos;
@@ -56,7 +59,7 @@ public class GridLogic : MonoBehaviour
             settlementWidth = 2 * gridHeight + 2;
             roadCount = 2 * gridWidth + 2;
         }
-
+        
         AddGap();
         CalcStartPos();
         CreateHexGrid();
@@ -64,6 +67,7 @@ public class GridLogic : MonoBehaviour
         //CreateSettlementGrid();
         PlaceSettlements();
         PlaceRoads();
+
     }
 
     void AddGap()
@@ -101,10 +105,7 @@ public class GridLogic : MonoBehaviour
     {
         tiles = new Tile[gridWidth, gridWidth];
         
-
         int tileIndex = 0;
-        int numberTokenIndex = 0;
-
 
         for (int y = 0; y < gridHeight; y++) {
             for (int x = 0; x < gridWidth; x++) {
@@ -128,35 +129,7 @@ public class GridLogic : MonoBehaviour
                     tiles[x, y] = new Tile(tileGameObject,x,y,board.resourceList[tileIndex]);
                     tokenOrder[board.partOfTheBoard[y, x]] = tiles[x, y];
 
-                    //place the settlements above and below
-                    //PlaceTopSettlement(tiles[x, y]);
-                    //PlaceBottomSettlement(tiles[x, y]);
-
-                    //if not the desert and water
-                    if (board.resourceList[tileIndex] != ResourceType.Desert && board.resourceList[tileIndex] != ResourceType.Water){
-                        ////set the resource number
-                        //tiles[x, y].resourceNumber = board.numberTokens[numberTokenIndex];
-                        ////create a token
-                        //GameObject token = (GameObject)Instantiate(tokenPrefab);
-                        //tile.transform.parent = tiles[x, y].gameObject.transform;
-                        //token.transform.position = tile.transform.position;
-                        //token.transform.parent = tiles[x, y].gameObject.transform;
-
-                        //TextMesh textMesh = token.GetComponentInChildren<TextMesh>();
-                        //textMesh.text = board.numberTokens[numberTokenIndex].ToString();
-
-                        
-
-                        //if (board.numberTokens[numberTokenIndex] == 6 || board.numberTokens[numberTokenIndex] == 8) {
-                        //    //make font red
-                        //    textMesh.color = Color.red;
-                        //}
-
-                        //tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
-
-
-                        //numberTokenIndex++;
-                    }
+                  
 
                     MeshRenderer meshRenderer = tileGameObject.GetComponentInChildren<MeshRenderer>();
                     switch(board.resourceList[tileIndex]){
@@ -188,7 +161,6 @@ public class GridLogic : MonoBehaviour
                     tileData.setResourceType(board.resourceList[tileIndex]);
 
                     tileIndex++;
-                    //print("Hexagon: " + x + "," + y + ") " + tileData.getTokenNumber() + " " + tileData.getResourceType());
                 }
                 //tile is water
                 else{
@@ -196,7 +168,6 @@ public class GridLogic : MonoBehaviour
                     tile.transform.parent = this.transform;
 
                     tiles[x, y] = new Tile(tile, x, y, ResourceType.Water);
-                    //tiles[x, y].resourceType = ResourceType.Water;
 
                     TileData tileData = tile.GetComponent<TileData>();
 
@@ -227,10 +198,17 @@ public class GridLogic : MonoBehaviour
         for (int i = 0; i < tokenOrder.Length; i++) {
             
             if (tokenOrder[i].resourceType != ResourceType.Desert) {
+                int x = tokenOrder[i].x;
+                int y = tokenOrder[i].y;
                 //place number token
                 //set the resource number
+
+                //place tokennumber in tiledata
+                TileData tileData = tokenOrder[i].gameObject.GetComponent<TileData>();
+                tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
+
                 tokenOrder[i].resourceNumber = board.numberTokens[numberTokenIndex];
-                print("(" + tokenOrder[i].x + "," + tokenOrder[i].y + ") " + tokenOrder[i].resourceNumber + tokenOrder[i].resourceType);
+                print("(" + x + "," + y + ") " + tokenOrder[i].resourceNumber + " " + tokenOrder[i].resourceType);
                 //create a token
                 GameObject token = (GameObject)Instantiate(tokenPrefab);
                 token.transform.position = tokenOrder[i].gameObject.transform.position;
@@ -301,10 +279,10 @@ public class GridLogic : MonoBehaviour
         //print("Placing settlement around tile (" + x + "," + y + ")");
         //create game object, place in hierarchy, set name
         GameObject settlement = (GameObject)Instantiate(settlementPrefab);
+        SettlementData settlementData = settlement.GetComponent<SettlementData>();
+        settlementData.setPosition(x, y);
 
         settlement.transform.parent = settlementSpotsGameObject.transform;
-        //settlement.transform.parent = tile.gameObject.transform;
-
         settlement.transform.name = "Settlement (" + x + "," + y + ")";
 
         //set settlement position
@@ -331,10 +309,10 @@ public class GridLogic : MonoBehaviour
 
 
         GameObject settlement = (GameObject)Instantiate(settlementPrefab);
+        SettlementData settlementData = settlement.GetComponent<SettlementData>();
+        settlementData.setPosition(x, y);
 
         settlement.transform.parent = settlementSpotsGameObject.transform;
-        //settlement.transform.parent = tile.gameObject.transform;
-
         settlement.transform.name = "Settlement (" + x + "," + y + ")";
 
         //set settlement position
@@ -392,7 +370,7 @@ public class GridLogic : MonoBehaviour
         int yLeft = 2 * tileY + 1;
         //int xTopLeft = 2 * tileX + offset;
         //int yTopLeft = 2 * tileY;
-        int xBottomRight = 2 * tileX + offset;
+        int xBottomRight = 2 * tileX + 1 + offset;
         int yBottomRight = 2 * tileY + 2;
         int xBottomLeft = 2 * tileX + offset;
         int yBottomLeft = 2 * tileY + 2;
@@ -474,37 +452,24 @@ public class GridLogic : MonoBehaviour
         
     }
 
-
-    //      left
-    //      roads[2 * x + offset, 2 * y + 1], 3rd
-    //    //top left
-    //    roads[2 * x + offset, 2 * y],  1st
-    //    //top right
-    //    roads[2 * x + 1 + offset, 2 * y], 2nd
-    //    //right
-    //    roads[2 * x + 2 + offset, 2 * y + 1], 4th
-    //    //bottom right
-    //    roads[2 * x + 1 + offset, 2 * y + 2], 5th
-    //    //bottom left
-    //    roads[2 * x + offset, 2 * y + 2] 6th
-
-
     private void PlaceRoadsOnCertainlSides(Tile tile, TileDirection tileDirection) {
         int tileX = tile.x;
         int tileY = tile.y;
         int offset = tileY % 2;
-        int xLeft = (2 * tileX) + offset;
-        int yLeft = 2 * tileY + 1;
-        //int xTopLeft = 2 * tileX + offset;
-        //int yTopLeft = 2 * tileY;
-        int xBottomRight = 2 * tileX + offset;
-        int yBottomRight = 2 * tileY + 2;
-        int xBottomLeft = 2 * tileX + 1 + offset;
-        int yBottomLeft = 2 * tileY + 2;
+        //int xLeft = (2 * tileX) + offset;
+        //int yLeft = 2 * tileY + 1;
+        ////int xTopLeft = 2 * tileX + offset;
+        ////int yTopLeft = 2 * tileY;
+        //int xBottomRight = 2 * tileX + offset;
+        //int yBottomRight = 2 * tileY + 2;
+        //int xBottomLeft = 2 * tileX + 1 + offset;
+        //int yBottomLeft = 2 * tileY + 2;
 
 
         //left
         if(tileDirection == TileDirection.Left) {
+            int xLeft = 2 * tileX + offset;
+            int yLeft = 2 * tileY + 1;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
             road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
@@ -534,6 +499,8 @@ public class GridLogic : MonoBehaviour
 
         //bottom right
         if (tileDirection == TileDirection.BottomRight) {
+            int xBottomRight = 2 * tileX + 1 + offset;
+            int yBottomRight = 2 * tileY + 2;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
             road.transform.name = "Road (" + xBottomRight + "," + yBottomRight + ")";
@@ -550,9 +517,11 @@ public class GridLogic : MonoBehaviour
 
         //bottom left
         if (tileDirection == TileDirection.BottomLeft) {
+            int xBottomLeft = 2 * tileX + offset;
+            int yBottomLeft = 2 * tileY + 2;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
-            road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
+            road.transform.name = "Road (" + xBottomLeft + "," + yBottomLeft + ")";
 
             Vector2 gridPos = new Vector2(tileX, tileY);
             Vector3 worldPos = CalcWorldPosTiles(gridPos);
@@ -564,22 +533,6 @@ public class GridLogic : MonoBehaviour
         }
         
     }
-
-
-    //GameObject PlaceBottomSettlement(Tile tile) {
-    //    GameObject settlement = (GameObject)Instantiate(settlementPrefab);
-    //    settlement.transform.parent = settlementGameObject.transform;
-
-    //    //set tile position
-    //    Vector2 gridPos = new Vector2(tile.x, tile.y);
-    //    Vector3 worldPos = CalcWorldPosTiles(gridPos);
-
-    //    worldPos.y = worldPos.y - (hexHeight / 2);
-
-    //    settlement.transform.position = worldPos;
-
-    //    return settlement;
-    //}
 
     public Tile[] GetNeighbors(Tile tile) {
         return GetNeighbors(tile.x, tile.y);
@@ -933,6 +886,41 @@ public class GridLogic : MonoBehaviour
         }
     }
 
+    public void checkIfNextToWater(int x, int y) {
+        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
+        for (int i = 0; i < surroundingTiles.Length; i++) {
+            TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
+            print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
+        }
+    }
+
+    public void highlightSurroundingRoads(int x, int y) {
+        Road[] surroundingRoads = GetRoads(settlements[x, y]);
+        for (int i = 0; i < surroundingRoads.Length; i++) {
+            print("(" + surroundingRoads[i].getX() + "," + surroundingRoads[i].getY() + ") ");
+
+            MeshRenderer meshRenderer = surroundingRoads[i].gameObject.GetComponentInChildren<MeshRenderer>();
+            meshRenderer.material = highlightMat;
+        }
+    }
+
+    public void testDelete(int x, int y) {
+        StartCoroutine(DeleteTilesCoroutine(x, y));
+    }
+
+    IEnumerator DeleteTilesCoroutine(int x, int y) {
+        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
+        for (int i = 0; i < surroundingTiles.Length; i++) {
+            TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
+
+            print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
+
+            Destroy(surroundingTiles[i].gameObject);
+            yield return new WaitForSeconds(1);
+
+        }
+    }
+
     public Settlement[] GetSettlements(Tile tile) {
         int x = tile.x;
         int y = tile.y;
@@ -955,8 +943,8 @@ public class GridLogic : MonoBehaviour
             settlements[2*x+1+offset,y+1],
             //bottom left
             settlements[2*x+offset,y+1]
-            
-            
+
+
         };
 
     }
@@ -981,44 +969,98 @@ public class GridLogic : MonoBehaviour
 
     }
 
-    public void checkIfNextToWater(int x, int y) {
-        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
-        for (int i = 0; i < surroundingTiles.Length; i++) {
-            TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
-            print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
+    public Settlement[] GetEnds(Road road) {
+        int x = road.getX();
+        int y = road.getY();
+        if (y % 2 == 0)
+            return new[]
+            {
+                settlements[x,y/2],
+                settlements[x+1,y/2]
+            };
+        else
+            return new[]
+            {
+                settlements[x,(y-1)/2],
+                settlements[x,(y+1)/2]
+            };
+    }
+
+    public Road[] GetRoads(Settlement settlement) {
+        int x = settlement.getX();
+        int y = settlement.getY();
+        if (x % 2 == y % 2) {
+            return new[]
+                {
+                    roads[x-1,y*2],
+                    roads[x,y*2],
+                    roads[x,y*2+1]
+                };
         }
-    }
-
-    public void testDelete(int x, int y) {
-        StartCoroutine(DeleteTilesCoroutine(x, y));
-    }
-
-    IEnumerator DeleteTilesCoroutine(int x, int y) {
-        Tile[] surroundingTiles = GetNeighbors(tiles[x, y]);
-        for (int i = 0; i < surroundingTiles.Length; i++) {
-            TileData tileData = surroundingTiles[i].gameObject.GetComponent<TileData>();
-
-            print("(" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ") : " + tileData.getResourceType());
-
-            Destroy(surroundingTiles[i].gameObject);
-            yield return new WaitForSeconds(1);
-
+        else {
+            return new[]
+            {
+                    roads[x-1,y*2],
+                    roads[x,y*2],
+                    roads[x,y*2-1]
+                };
         }
-    }
-
-
-        //public IEnumerable<Tile> GetNeighbors(Tile tile) {
-        //    var x = tile.getX; var y = tile.getY;
-        //    var offset = x % 2 == 0 ? +1 : -1;
-        //    return new[]
-        //    {
-        //        Hexes[x,y+1],
-        //        Hexes[x,y-1],
-        //        Hexes[x+1,y],
-        //        Hexes[x-1,y],
-        //        Hexes[x+1,y+offset],
-        //        Hexes[x-1,y+offset],
-        //    };
+        //if (y % 2 == 0) {
+        //    if (x % 2 == 0) {
+        //        print("even x even y");
+        //        return new[]
+        //        {
+        //            roads[x-1,y*2],
+        //            roads[x,y*2],
+        //            roads[x,y*2+1]
+        //        };  
+        //    }
+        //    else {
+        //        print("odd x even y");
+        //        return new[]
+        //            {
+        //            roads[x-1,y*2],
+        //            roads[x,y*2],
+        //            roads[x,y*2-1]
+        //            };
+        //    }
+        //}
+        //else {
+        //    if (x % 2 == 0) {
+        //        print("even x odd y");
+        //        return new[]
+        //        {
+        //            roads[x-1,y*2],
+        //            roads[x,y*2],
+        //            roads[x,y*2-1]
+        //        };
+        //    }
+        //    else {
+        //        print("odd x odd y");
+        //        return new[]
+        //            {
+        //            roads[x-1,y*2],
+        //            roads[x,y*2],
+        //            roads[x,y*2+1]
+        //            };
+        //    }
         //}
 
+        
     }
+
+    public Tile[] GetHexes(Settlement settlement) {
+        int x = settlement.getX();
+        int y = settlement.getY();
+        var xoffset = x % 2;
+        var yoffset = y % 2;
+
+        return new[]
+        {
+            tiles[(x+yoffset)/2-1,y-1],
+            tiles[(x-1)/2,y-(1-xoffset)*yoffset],
+            tiles[(x-yoffset)/2,y],
+        };
+    }
+
+}
