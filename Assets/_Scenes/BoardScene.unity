@@ -716,7 +716,8 @@ MonoBehaviour:
   oreMat: {fileID: 2100000, guid: e02552cb055c34c22895bb3312c2a059, type: 2}
   desertMat: {fileID: 2100000, guid: d5379bb85e2be45f18540eff391c1a93, type: 2}
   waterMat: {fileID: 2100000, guid: 3a52269f8e77f4e15b36b8732857d062, type: 2}
-  highlightMat: {fileID: 0}
+  redPlayerMat: {fileID: 2100000, guid: c6c1371f62151c4459e08cc375d1c004, type: 2}
+  highlightMat: {fileID: 2100000, guid: 58d0053ce4745a449a7fe4867b4e102f, type: 2}
 --- !u!1 &1208865313
 GameObject:
   m_ObjectHideFlags: 0

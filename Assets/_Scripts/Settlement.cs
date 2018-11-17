@@ -32,5 +32,9 @@ public class Settlement {
     public void resetColor() {
         meshRenderer.material = startingMaterial;
     }
+
+    public void setColor(Material material) {
+        meshRenderer.material = material;
+    }
 }
 

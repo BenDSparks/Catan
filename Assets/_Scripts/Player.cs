@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class Player {
 
-    int playerNumber;
-    PlayerColor playerColor;
+    public int playerNumber;
+    public PlayerColor playerColor;
     public int settlments;
-    int cities;
-    int roads;
+    public int cities;
+    public int roads;
     bool isTurn;
 
     int brickCount;

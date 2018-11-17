@@ -39,6 +39,7 @@ public class GridLogic : MonoBehaviour
     public Material oreMat;
     public Material desertMat;
     public Material waterMat;
+    public Material redPlayerMat;
 
     public Material highlightMat;
 
@@ -1232,9 +1233,10 @@ public class GridLogic : MonoBehaviour
 
 
 
-    public void buySettlement(int x, int y) {
+    public void buySettlement(int x, int y, int playerNumber) {
         settlements[x, y].isOccupied = true;
         settlements[x, y].isAvailable = false;
+        settlements[x, y].setColor(redPlayerMat);
         setAvailableSettlementSpots();
     }
 
