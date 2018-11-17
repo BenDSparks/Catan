@@ -12,9 +12,9 @@ public class GridLogic : MonoBehaviour
     public GameObject tokenPrefab;
     public GameObject settlementSpotsGameObject;
     public GameObject roadSpotsGameObject;
-    private Tile[,] tiles;
-    private Settlement[,] settlements;
-    private Road[,] roads;
+    public Tile[,] tiles;
+    public Settlement[,] settlements;
+    public Road[,] roads;
 
 
 
@@ -68,7 +68,18 @@ public class GridLogic : MonoBehaviour
         PlaceSettlements();
         PlaceRoads();
 
+        //highlightSurroundingTiles(6, 2); //even even
+        //highlightSurroundingTiles(9, 2); // odd even
+        //highlightSurroundingTiles(5, 5); // odd odd
+        //highlightSurroundingTiles(10, 5); //even odd
+
+        //settlements[8, 2].isAvailable = false;
+        //settlements[8, 2].isOccupied = true;
+        //setAvailableSettlementSpots();
+
     }
+
+   
 
     void AddGap()
     {
@@ -208,7 +219,7 @@ public class GridLogic : MonoBehaviour
                 tileData.setTokenNumber(board.numberTokens[numberTokenIndex]);
 
                 tokenOrder[i].resourceNumber = board.numberTokens[numberTokenIndex];
-                print("(" + x + "," + y + ") " + tokenOrder[i].resourceNumber + " " + tokenOrder[i].resourceType);
+                //print("(" + x + "," + y + ") " + tokenOrder[i].resourceNumber + " " + tokenOrder[i].resourceType);
                 //create a token
                 GameObject token = (GameObject)Instantiate(tokenPrefab);
                 token.transform.position = tokenOrder[i].gameObject.transform.position;
@@ -895,12 +906,42 @@ public class GridLogic : MonoBehaviour
     }
 
     public void highlightSurroundingRoads(int x, int y) {
-        Road[] surroundingRoads = GetRoads(settlements[x, y]);
-        for (int i = 0; i < surroundingRoads.Length; i++) {
-            print("(" + surroundingRoads[i].getX() + "," + surroundingRoads[i].getY() + ") ");
 
-            MeshRenderer meshRenderer = surroundingRoads[i].gameObject.GetComponentInChildren<MeshRenderer>();
-            meshRenderer.material = highlightMat;
+        Road[] surroundingRoads = GetRoadsAroundSettlement(settlements[x, y]);
+        for (int i = 0; i < surroundingRoads.Length; i++) {
+            if (surroundingRoads[i] != null) {
+                //print("(" + surroundingRoads[i].getX() + "," + surroundingRoads[i].getY() + ") ");
+
+                MeshRenderer meshRenderer = surroundingRoads[i].gameObject.GetComponentInChildren<MeshRenderer>();
+                meshRenderer.material = highlightMat;
+            }
+            
+        }
+    }
+
+    public void highlightSurroundingSettlements(int x, int y) {
+        Settlement[] surroundingSettlements = GetSettlementsAroundSettlements(settlements[x, y]);
+        for (int i = 0; i < surroundingSettlements.Length; i++) {
+            if (surroundingSettlements[i] != null) {
+                print("(" + surroundingSettlements[i].getX() + "," + surroundingSettlements[i].getY() + ") ");
+
+                MeshRenderer meshRenderer = surroundingSettlements[i].gameObject.GetComponentInChildren<MeshRenderer>();
+                meshRenderer.material = highlightMat;
+            }
+
+        }
+    }
+
+    public void highlightSurroundingTiles(int x, int y) {
+        print("Around settlement (" + x + "," + y + ")");
+        Tile[] surroundingTiles = GetHexesAroundSettlement(settlements[x, y]);
+        for (int i = 0; i < surroundingTiles.Length; i++) {
+            if (surroundingTiles[i] != null) {
+                print("Tile: (" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ")");
+                MeshRenderer meshRenderer = surroundingTiles[i].gameObject.GetComponentInChildren<MeshRenderer>();
+                meshRenderer.material = highlightMat;
+            }
+            
         }
     }
 
@@ -921,7 +962,7 @@ public class GridLogic : MonoBehaviour
         }
     }
 
-    public Settlement[] GetSettlements(Tile tile) {
+    public Settlement[] GetSettlementsAroundTile(Tile tile) {
         int x = tile.x;
         int y = tile.y;
 
@@ -949,7 +990,7 @@ public class GridLogic : MonoBehaviour
 
     }
 
-    public Road[] GetRoads(int x, int y) {
+    public Road[] GetRoadsAroundTile(int x, int y) {
         int offset = y % 2;
         return new[]
         {
@@ -969,7 +1010,7 @@ public class GridLogic : MonoBehaviour
 
     }
 
-    public Settlement[] GetEnds(Road road) {
+    public Settlement[] GetSettlementsAroundRoad(Road road) {
         int x = road.getX();
         int y = road.getY();
         if (y % 2 == 0)
@@ -986,7 +1027,7 @@ public class GridLogic : MonoBehaviour
             };
     }
 
-    public Road[] GetRoads(Settlement settlement) {
+    public Road[] GetRoadsAroundSettlement(Settlement settlement) {
         int x = settlement.getX();
         int y = settlement.getY();
         if (x % 2 == y % 2) {
@@ -1049,18 +1090,163 @@ public class GridLogic : MonoBehaviour
         
     }
 
-    public Tile[] GetHexes(Settlement settlement) {
+    public Tile[] GetHexesAroundSettlement(Settlement settlement) {
         int x = settlement.getX();
         int y = settlement.getY();
-        var xoffset = x % 2;
-        var yoffset = y % 2;
 
-        return new[]
-        {
-            tiles[(x+yoffset)/2-1,y-1],
-            tiles[(x-1)/2,y-(1-xoffset)*yoffset],
-            tiles[(x-yoffset)/2,y],
-        };
+        if (x % 2 == 0) {
+            if (y % 2 == 0) {
+                //even even .
+                return new[]
+                {
+                    tiles[x/2-1,y-1],
+                    tiles[(x-1)/2,y],
+                    tiles[x/2,y],
+                };
+            }
+            else {
+                //even odd
+                return new[]
+                {
+                    tiles[x/2-1,y-1],
+                    tiles[x/2,y-1],
+                    tiles[x/2-1,y],
+                };
+            }
+        }
+        else {
+            if (y % 2 == 0) {
+                //odd even .
+                return new[]
+                {
+                    tiles[x/2-1,y-1],
+                    tiles[(x-1)/2,y],
+                    tiles[(x-1)/2,y-1],
+                };
+            }
+            else {
+                //odd odd
+                return new[]
+                {
+                    tiles[(x-1)/2-1,y],
+                    tiles[(x-1)/2,y-1],
+                    tiles[(x-1)/2,y],
+                };
+            }
+        }
+
+        //int x = settlement.getX();
+        //int y = settlement.getY();
+        //xOffset = x % 2;
+        //yOffset = y % 2;
+
+        //if (x < tiles.GetLength(0) && y/2 < tiles.GetLength(1)) {
+        //    Tile = self.tiles[]
+        //}
+
+        //# tested
+        //def getHexes(self, vertex):
+        //vertexHexes = []
+        //x = vertex.X
+        //y = vertex.Y
+        //xOffset = x % 2
+        //yOffset = y % 2
+
+        //if x < len(self.hexagons) and y/ 2 < len(self.hexagons[x]):
+        //  hexOne = self.hexagons[x][y / 2]
+        //  if hexOne != None: vertexHexes.append(hexOne)
+
+        //weirdX = x
+        //if (xOffset + yOffset) == 1: weirdX = x - 1
+        //weirdY = y / 2
+        //if yOffset == 1: weirdY += 1
+        //else: weirdY -= 1
+        //if weirdX >= 0 and weirdX<len(self.hexagons) and weirdY >= 0 and weirdY<len(self.hexagons):
+        //  hexTwo = self.hexagons[weirdX][weirdY]
+        //  if hexTwo != None: vertexHexes.append(hexTwo)
+
+        //if x > 0 and x<len(self.hexagons) and y/ 2 < len(self.hexagons[x]):
+        //  hexThree = self.hexagons[x - 1][y / 2]
+        //  if hexThree != None: vertexHexes.append(hexThree)
+
+        //return vertexHexes
+
+
     }
 
+    public Settlement[] GetSettlementsAroundSettlements(Settlement settlement) {
+        int x = settlement.getX();
+        int y = settlement.getY();
+        if (x % 2 == y % 2) {
+            return new[]
+                {
+                    settlements[x-1,y],
+                    settlements[x+1,y],
+                    settlements[x,y+1]
+                };
+        }
+        else {
+            return new[]
+            {
+                    settlements[x-1,y],
+                    settlements[x+1,y],
+                    settlements[x,y-1]
+                };
+        }
+    }
+
+    public void setAvailableSettlementSpots() {
+        //go through all the settlements
+        for (int x = 0; x < settlements.GetLength(0); x++) {
+            for (int y = 0; y < settlements.GetLength(1); y++) {
+                //if the settlement exists
+                if(settlements[x,y] != null) {
+                    if (settlements[x,y].isAvailable) {
+
+                        Settlement[] surroundingSettlements = GetSettlementsAroundSettlements(settlements[x, y]);
+
+                        //loop through surrounding settlements and see if it is occupided with a settlement. if it is set the spots availability to false
+                        for (int i = 0; i < surroundingSettlements.Length; i++) {
+                            if (surroundingSettlements[i] != null) {
+                                
+                                if (surroundingSettlements[i].isOccupied) {
+                                    settlements[x, y].isAvailable = false;
+                                }
+
+                            }
+                        }
+
+
+                        if (settlements[x, y].isAvailable) {
+                            MeshRenderer meshRenderer = settlements[x, y].gameObject.GetComponentInChildren<MeshRenderer>();
+                            meshRenderer.material = highlightMat;
+                        }
+
+
+                    }
+                }
+                
+            }
+        }
+    }
+
+
+
+    public void buySettlement(int x, int y) {
+        settlements[x, y].isOccupied = true;
+        settlements[x, y].isAvailable = false;
+        setAvailableSettlementSpots();
+    }
+
+    public void resetSettlementColors() {
+        for (int x = 0; x < settlements.GetLength(0); x++) {
+            for (int y = 0; y < settlements.GetLength(1); y++) {
+                if (settlements[x,y] != null) {
+                    if (!settlements[x,y].isOccupied) {
+                        settlements[x, y].resetColor();
+                    }
+                }
+            }
+        }
+    }
 }

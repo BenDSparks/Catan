@@ -8,10 +8,14 @@ public class Tile
     public int resourceNumber;
     public int x;
     public int y;
+    private MeshRenderer meshRenderer;
+    private Material startingMaterial;
 
-    public Tile(GameObject gObject, int x, int y, ResourceType resourceType)
+    public Tile(GameObject gameObject, int x, int y, ResourceType resourceType)
     {
-        this.gameObject = gObject;
+        this.gameObject = gameObject;
+        meshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
+        startingMaterial = meshRenderer.material;
         this.x = x;
         this.y = y;
         this.resourceType = resourceType;
@@ -21,7 +25,7 @@ public class Tile
         gameObject = new GameObject();
     }
 
- 
+    
 
 }
 

@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour {
     private Player[] players;
     private int[] turnOrder;
 
+    int settlementMax = 5;
+    int cityMax = 4;
+    int roadMax = 15;
 
     // Use this for initialization
     void Start () {
@@ -18,6 +21,10 @@ public class GameManager : MonoBehaviour {
         //create players
         players = new Player[playerCount];
         turnOrder = new int[playerCount];
+
+        gridLogic = gameBoard.GetComponent<GridLogic>();
+
+        print(gridLogic);
 
         for (int i = 0; i < turnOrder.Length; i++) {
             turnOrder[i] = i;
@@ -36,4 +43,24 @@ public class GameManager : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void settlementClicked(int x, int y) {
+        buySettlementIfPossible(x, y, players[0]);
+    }
+    
+    public void backgroundClicked() {
+        gridLogic.resetSettlementColors();
+    }
+
+    public void buySettlementIfPossible(int x, int y, Player player) {
+        //check if player has enough settlements
+        if (player.settlments > 0) {
+            if (gridLogic.settlements[x,y].isAvailable) {
+                print("(" + x + "," + y + ")");
+                gridLogic.buySettlement(x, y);
+            }
+            
+        }
+        
+    }
 }

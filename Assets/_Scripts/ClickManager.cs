@@ -7,10 +7,12 @@ public class ClickManager : MonoBehaviour {
     public Camera camera;
     public GameObject gameBoard;
     private GridLogic gridLogic;
+    private GameManager gameManager;
 
 	// Use this for initialization
 	void Start () {
         gridLogic = gameBoard.GetComponent<GridLogic>();
+        gameManager = this.gameObject.GetComponent<GameManager>();
 	}
 	
 	// Update is called once per frame
@@ -29,24 +31,32 @@ public class ClickManager : MonoBehaviour {
                     SettlementData settlementData = settlementTransform.GetComponent<SettlementData>();
                     int x = settlementData.getX();
                     int y = settlementData.getY();
-                    print("Settlement: (" + x + "," + y + ")");
-                    gridLogic.highlightSurroundingRoads(settlementData.getX(), settlementData.getY());
+
+                    gameManager.settlementClicked(x, y);
+                    //print("Settlement: (" + x + "," + y + ")");
+                    //gridLogic.highlightSurroundingRoads(settlementData.getX(), settlementData.getY());
+                    //gridLogic.highlightSurroundingSettlements(settlementData.getX(), settlementData.getY());
+                    //gridLogic.highlightSurroundingTiles(settlementData.getX(), settlementData.getY());
                     break;
                 }
                 if (hit.transform.tag == "Tile"){
-                    Transform tileTransform = hit.transform.parent;
+                    //Transform tileTransform = hit.transform.parent;
 
-                    TileData tileData = tileTransform.GetComponent<TileData>();
-                    int x = tileData.getX();
-                    int y = tileData.getY();
-                    print(string.Concat("Center Tile: (", x, ",", y, ") ",tileData.getTokenNumber(), " ", tileData.getResourceType()));
-
-
-                    gridLogic.checkIfNextToWater(x, y);
-                    //deletes 
-                    //gridLogic.testDelete(x, y);
+                    //TileData tileData = tileTransform.GetComponent<TileData>();
+                    //int x = tileData.getX();
+                    //int y = tileData.getY();
+                    //print(string.Concat("Center Tile: (", x, ",", y, ") ",tileData.getTokenNumber(), " ", tileData.getResourceType()));
 
 
+                    ////gridLogic.checkIfNextToWater(x, y);
+                    ////deletes 
+                    ////gridLogic.testDelete(x, y);
+
+
+                    break;
+                }
+                if (hit.transform.tag == "Background") {
+                    gameManager.backgroundClicked();
                     break;
                 }
                 

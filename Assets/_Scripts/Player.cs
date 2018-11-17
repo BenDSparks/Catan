@@ -5,7 +5,7 @@ public class Player {
 
     int playerNumber;
     PlayerColor playerColor;
-    int settlments;
+    public int settlments;
     int cities;
     int roads;
     bool isTurn;
@@ -25,5 +25,15 @@ public class Player {
         settlments = 5;
         cities = 4;
         roads = 15;
+
+        isTurn = false;
+
+        brickCount = 0;
+        woodCount = 0;
+        sheepCount = 0;
+        wheatCount = 0;
+        oreCount = 0;
+        goldCount = 0;
+
     }
 }
