@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ClickManager : MonoBehaviour {
@@ -20,13 +21,23 @@ public class ClickManager : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(0)){
             RaycastHit[] hits;
-            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-            hits = Physics.RaycastAll(ray);
+            Vector3 forward = transform.TransformDirection(Vector3.forward) * 100;
 
+            Ray ray = new Ray(camera.ScreenToWorldPoint(Input.mousePosition), forward);
+            //Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            Debug.DrawRay(camera.ScreenToWorldPoint(Input.mousePosition), forward,Color.red, 1);
+
+            //get all the raycast hits and order them by which was hit first
+            hits = Physics.RaycastAll(ray).OrderBy(h => h.distance).ToArray(); ;
+            
+            print("Length " + hits.Length);
             for (int i = 0; i < hits.Length; i++){
+                print(i);
                 RaycastHit hit = hits[i];
-
+                print("i: " + i + " " + hit.transform.tag);
+                
                 if (hit.transform.tag == "Settlement") {
+                    print("Settlment clicked");
                     Transform settlementTransform = hit.transform.parent;
                     SettlementData settlementData = settlementTransform.GetComponent<SettlementData>();
                     int x = settlementData.getX();
@@ -37,9 +48,20 @@ public class ClickManager : MonoBehaviour {
                     //gridLogic.highlightSurroundingRoads(settlementData.getX(), settlementData.getY());
                     //gridLogic.highlightSurroundingSettlements(settlementData.getX(), settlementData.getY());
                     //gridLogic.highlightSurroundingTiles(settlementData.getX(), settlementData.getY());
-                    break;
+                    //break;
+                }
+                if(hit.transform.tag == "Road") {
+                    print("Road clicked");
+                    Transform roadTransform = hit.transform.parent;
+                    RoadData settlementData = roadTransform.GetComponent<RoadData>();
+                    int x = settlementData.getX();
+                    int y = settlementData.getY();
+
+                    gameManager.roadClicked(x, y);
+                    //break;
                 }
                 if (hit.transform.tag == "Tile"){
+                    print("tile clicked");
                     //Transform tileTransform = hit.transform.parent;
 
                     //TileData tileData = tileTransform.GetComponent<TileData>();
@@ -53,9 +75,10 @@ public class ClickManager : MonoBehaviour {
                     ////gridLogic.testDelete(x, y);
 
 
-                    break;
+                    //break;
                 }
                 if (hit.transform.tag == "Background") {
+                    print("Background clicked");
                     gameManager.backgroundClicked();
                     break;
                 }

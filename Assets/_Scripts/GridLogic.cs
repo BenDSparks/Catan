@@ -39,7 +39,11 @@ public class GridLogic : MonoBehaviour
     public Material oreMat;
     public Material desertMat;
     public Material waterMat;
+
     public Material redPlayerMat;
+    public Material bluePlayerMat;
+    public Material orangePlayerMat;
+    public Material whitePlayerMat;
 
     public Material highlightMat;
 
@@ -63,9 +67,8 @@ public class GridLogic : MonoBehaviour
         
         AddGap();
         CalcStartPos();
-        CreateHexGrid();
+        CreateTileGrid();
         PlaceNumberTokens();
-        //CreateSettlementGrid();
         PlaceSettlements();
         PlaceRoads();
 
@@ -113,7 +116,7 @@ public class GridLogic : MonoBehaviour
     }
 
     //tile Logic
-    void CreateHexGrid()
+    void CreateTileGrid()
     {
         tiles = new Tile[gridWidth, gridWidth];
         
@@ -403,6 +406,9 @@ public class GridLogic : MonoBehaviour
         //left
         GameObject road = (GameObject)Instantiate(roadPrefab);
         road.transform.parent = roadSpotsGameObject.transform;
+        RoadData roadData = road.GetComponent<RoadData>();
+        roadData.setPosition(xLeft, yLeft);
+
 
         //road.transform.parent = tile.gameObject.transform;
         road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
@@ -430,10 +436,12 @@ public class GridLogic : MonoBehaviour
         //road.transform.Rotate(0, 0, -60, Space.Self);
         //roads[xTopLeft, yTopLeft] = new Road(road, xTopLeft, yTopLeft);
 
-        //top left
+        //bottom right
         road = (GameObject)Instantiate(roadPrefab);
         road.transform.parent = roadSpotsGameObject.transform;
         //road.transform.parent = tile.gameObject.transform;
+        roadData = road.GetComponent<RoadData>();
+        roadData.setPosition(xBottomRight, yBottomRight);
 
         road.transform.name = "Road (" + xBottomRight + "," + yBottomRight + ")";
 
@@ -450,6 +458,9 @@ public class GridLogic : MonoBehaviour
         road = (GameObject)Instantiate(roadPrefab);
         road.transform.parent = roadSpotsGameObject.transform;
         //road.transform.parent = tile.gameObject.transform;
+        roadData = road.GetComponent<RoadData>();
+        roadData.setPosition(xBottomLeft, yBottomLeft);
+
         road.transform.Rotate(0, 0, 60, Space.Self);
         road.transform.name = "Road (" + xBottomLeft + "," + yBottomLeft + ")";
 
@@ -484,6 +495,9 @@ public class GridLogic : MonoBehaviour
             int yLeft = 2 * tileY + 1;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
+            RoadData roadData = road.GetComponent<RoadData>();
+            roadData.setPosition(xLeft, yLeft);
+
             road.transform.name = "Road (" + xLeft + "," + yLeft + ")";
 
             Vector2 gridPos = new Vector2(tileX, tileY);
@@ -515,6 +529,9 @@ public class GridLogic : MonoBehaviour
             int yBottomRight = 2 * tileY + 2;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
+            RoadData roadData = road.GetComponent<RoadData>();
+            roadData.setPosition(xBottomRight, yBottomRight);
+
             road.transform.name = "Road (" + xBottomRight + "," + yBottomRight + ")";
 
             Vector2 gridPos = new Vector2(tileX, tileY);
@@ -533,6 +550,9 @@ public class GridLogic : MonoBehaviour
             int yBottomLeft = 2 * tileY + 2;
             GameObject road = (GameObject)Instantiate(roadPrefab);
             road.transform.parent = roadSpotsGameObject.transform;
+            RoadData roadData = road.GetComponent<RoadData>();
+            roadData.setPosition(xBottomLeft, yBottomLeft);
+
             road.transform.name = "Road (" + xBottomLeft + "," + yBottomLeft + ")";
 
             Vector2 gridPos = new Vector2(tileX, tileY);
@@ -1196,14 +1216,15 @@ public class GridLogic : MonoBehaviour
         }
     }
 
-    public void setAvailableSettlementSpots() {
+    public void highlightAvailableStartingSettlementSpots() {
+        print("highlighting");
         //go through all the settlements
         for (int x = 0; x < settlements.GetLength(0); x++) {
             for (int y = 0; y < settlements.GetLength(1); y++) {
                 //if the settlement exists
                 if(settlements[x,y] != null) {
                     if (settlements[x,y].isAvailable) {
-
+                        print("available");
                         Settlement[] surroundingSettlements = GetSettlementsAroundSettlements(settlements[x, y]);
 
                         //loop through surrounding settlements and see if it is occupided with a settlement. if it is set the spots availability to false
@@ -1219,8 +1240,10 @@ public class GridLogic : MonoBehaviour
 
 
                         if (settlements[x, y].isAvailable) {
-                            MeshRenderer meshRenderer = settlements[x, y].gameObject.GetComponentInChildren<MeshRenderer>();
-                            meshRenderer.material = highlightMat;
+                            print("showing visual");
+                            settlements[x, y].showVisual();
+                            settlements[x, y].showCollider();
+                            settlements[x,y].setColor(highlightMat);
                         }
 
 
@@ -1231,13 +1254,59 @@ public class GridLogic : MonoBehaviour
         }
     }
 
-
-
     public void buySettlement(int x, int y, int playerNumber) {
         settlements[x, y].isOccupied = true;
         settlements[x, y].isAvailable = false;
-        settlements[x, y].setColor(redPlayerMat);
-        setAvailableSettlementSpots();
+
+        switch (playerNumber) {
+            case 0:
+                settlements[x, y].setColor(redPlayerMat);
+                break;
+            case 1:
+                settlements[x, y].setColor(bluePlayerMat);
+                break;
+            case 2:
+                settlements[x, y].setColor(orangePlayerMat);
+                break;
+            case 3:
+                settlements[x, y].setColor(whitePlayerMat);
+                break;
+            default:
+                break;
+        }
+
+        //turn off the collider
+        settlements[x, y].hideCollider();
+        
+        //highlightAvailableSettlementSpots();
+        resetSettlementColors();
+    }
+
+    public void buyRoad(int x, int y, int playerNumber) {
+        roads[x, y].isOccupied = true;
+        roads[x, y].isAvailable = false;
+
+        switch (playerNumber) {
+            case 0:
+                roads[x, y].setColor(redPlayerMat);
+                break;
+            case 1:
+                roads[x, y].setColor(bluePlayerMat);
+                break;
+            case 2:
+                roads[x, y].setColor(orangePlayerMat);
+                break;
+            case 3:
+                roads[x, y].setColor(whitePlayerMat);
+                break;
+            default:
+                break;
+        }
+
+
+
+        //highlightAvailableSettlementSpots();
+        resetRoadColors();
     }
 
     public void resetSettlementColors() {
@@ -1245,9 +1314,37 @@ public class GridLogic : MonoBehaviour
             for (int y = 0; y < settlements.GetLength(1); y++) {
                 if (settlements[x,y] != null) {
                     if (!settlements[x,y].isOccupied) {
+                        settlements[x, y].hideVisual();
                         settlements[x, y].resetColor();
+                        //settlements[x, y].isAvailable = false;
                     }
                 }
+            }
+        }
+    }
+
+    public void resetRoadColors() {
+        for (int x = 0; x < roads.GetLength(0); x++) {
+            for (int y = 0; y < roads.GetLength(1); y++) {
+                if (roads[x, y] != null) {
+                    if (!roads[x, y].isOccupied) {
+                        roads[x, y].resetColor();
+                        roads[x, y].hideVisual();
+                        roads[x, y].isAvailable = false;
+                    }
+                }
+            }
+        }
+    }
+
+    public void highlightStartingRoads(int x, int y) {
+        Road[] surroundingRoads = GetRoadsAroundSettlement(settlements[x, y]);
+
+        for (int i = 0; i < surroundingRoads.Length; i++) {
+            if (surroundingRoads[i] != null) {
+                surroundingRoads[i].showVisual();
+                surroundingRoads[i].setColor(highlightMat);
+                surroundingRoads[i].isAvailable = true;
             }
         }
     }

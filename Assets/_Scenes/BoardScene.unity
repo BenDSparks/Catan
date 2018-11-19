@@ -717,6 +717,9 @@ MonoBehaviour:
   desertMat: {fileID: 2100000, guid: d5379bb85e2be45f18540eff391c1a93, type: 2}
   waterMat: {fileID: 2100000, guid: 3a52269f8e77f4e15b36b8732857d062, type: 2}
   redPlayerMat: {fileID: 2100000, guid: c6c1371f62151c4459e08cc375d1c004, type: 2}
+  bluePlayerMat: {fileID: 2100000, guid: 3d2edecd377b8cc43a94c991688451f6, type: 2}
+  orangePlayerMat: {fileID: 2100000, guid: e93d71a376b8f1147bc660e16f7943c6, type: 2}
+  whitePlayerMat: {fileID: 2100000, guid: f5594ccf8ede24f4db061db7158d0352, type: 2}
   highlightMat: {fileID: 2100000, guid: 58d0053ce4745a449a7fe4867b4e102f, type: 2}
 --- !u!1 &1208865313
 GameObject:
@@ -827,7 +830,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1259739581}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.45}
+  m_LocalPosition: {x: 0, y: 0, z: -1.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -930,9 +933,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 7
       objectReference: {fileID: 0}
-    - target: {fileID: 1846074874509932, guid: 6bd2f6a6a985f8b4c835b56ba1748c7e, type: 2}
-      propertyPath: m_IsActive
-      value: 0
+    - target: {fileID: 65327499725885008, guid: 6bd2f6a6a985f8b4c835b56ba1748c7e,
+        type: 2}
+      propertyPath: m_Size.x
+      value: 2.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6bd2f6a6a985f8b4c835b56ba1748c7e, type: 2}
