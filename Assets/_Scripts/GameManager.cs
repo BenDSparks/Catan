@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
     public GameObject playerPrefab;
     public GameObject gameBoard;
     private GridLogic gridLogic;
-    public int playerCount = 4;
+    private int playerCount = 3;
     private Player[] players;
     //private int[] turnOrder;
     private int turnIndex = 0;
@@ -49,10 +49,81 @@ public class GameManager : MonoBehaviour {
         //highlight spots that the player can place his first settlement
         isStartingPhase = true;
         StartCoroutine(StartingPhase());
+        StartCoroutine(AutoPickSettlements());
+
 	}
 
+    public static class WaitFor {
+        public static IEnumerator Frames(int frameCount) {
+            while (frameCount > 0) {
+                frameCount--;
+                yield return null;
+            }
+        }
+    }
+
+    IEnumerator AutoPickSettlements() {
+        yield return new WaitForSeconds(.5f);
+
+        settlementClicked(6, 2);
+        yield return StartCoroutine(WaitFor.Frames(1));
+        roadClicked(6, 5);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        settlementClicked(10, 2);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        roadClicked(10, 5);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        settlementClicked(10, 5);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        roadClicked(9, 10);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        settlementClicked(8, 5);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        roadClicked(8, 10);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        //second group
+        settlementClicked(5, 3);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        roadClicked(5, 7);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        settlementClicked(11, 3);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        roadClicked(11, 7);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        settlementClicked(7, 4);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+        roadClicked(6, 8);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        settlementClicked(9, 4);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+
+        roadClicked(9, 7);
+        yield return StartCoroutine(WaitFor.Frames(1));
+
+    }
+
     private IEnumerator GameLoop() {
-        print("In game loop");
         
         //if has knight card, ask if you want to use it
 
@@ -72,6 +143,8 @@ public class GameManager : MonoBehaviour {
         yield return new WaitForSeconds(0);
 
         StartCoroutine(GameLoop());
+
+
     }
 
     IEnumerator StartingPhase() {
