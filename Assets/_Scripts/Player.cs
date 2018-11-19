@@ -1,30 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Player {
 
     public int playerNumber;
     public PlayerColor playerColor;
-    public int settlments;
-    public int cities;
-    public int roads;
+    public int settlmentCount;
+    public int cityCount;
+    public int roadCount;
     bool isTurn;
 
-    int brickCount;
-    int woodCount;
-    int sheepCount;
-    int wheatCount;
-    int oreCount;
-    int goldCount;
+
+    public int brickCount;
+    public int woodCount;
+    public int sheepCount;
+    public int wheatCount;
+    public int oreCount;
+    public int goldCount;
+
+    public List<Settlement> settlements;
+    public List<Road> roads;
 
     GameObject gameObject; 
 
     public Player(GameObject gameObject, int playerNumber) {
         this.gameObject = gameObject;
         this.playerNumber = playerNumber;
-        settlments = 5;
-        cities = 4;
-        roads = 15;
+        settlmentCount = 5;
+        cityCount = 4;
+        roadCount = 15;
 
         isTurn = false;
 
@@ -35,5 +40,7 @@ public class Player {
         oreCount = 0;
         goldCount = 0;
 
+        settlements = new List<Settlement>();
+        roads = new List<Road>();
     }
 }

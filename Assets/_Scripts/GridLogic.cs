@@ -955,7 +955,7 @@ public class GridLogic : MonoBehaviour
 
     public void highlightSurroundingTiles(int x, int y) {
         print("Around settlement (" + x + "," + y + ")");
-        Tile[] surroundingTiles = GetHexesAroundSettlement(settlements[x, y]);
+        Tile[] surroundingTiles = GetTilesAroundSettlement(settlements[x, y]);
         for (int i = 0; i < surroundingTiles.Length; i++) {
             if (surroundingTiles[i] != null) {
                 print("Tile: (" + surroundingTiles[i].x + "," + surroundingTiles[i].y + ")");
@@ -1111,7 +1111,7 @@ public class GridLogic : MonoBehaviour
         
     }
 
-    public Tile[] GetHexesAroundSettlement(Settlement settlement) {
+    public Tile[] GetTilesAroundSettlement(Settlement settlement) {
         int x = settlement.getX();
         int y = settlement.getY();
 
@@ -1217,14 +1217,12 @@ public class GridLogic : MonoBehaviour
     }
 
     public void highlightAvailableStartingSettlementSpots() {
-        print("highlighting");
         //go through all the settlements
         for (int x = 0; x < settlements.GetLength(0); x++) {
             for (int y = 0; y < settlements.GetLength(1); y++) {
                 //if the settlement exists
                 if(settlements[x,y] != null) {
                     if (settlements[x,y].isAvailable) {
-                        print("available");
                         Settlement[] surroundingSettlements = GetSettlementsAroundSettlements(settlements[x, y]);
 
                         //loop through surrounding settlements and see if it is occupided with a settlement. if it is set the spots availability to false
@@ -1240,7 +1238,6 @@ public class GridLogic : MonoBehaviour
 
 
                         if (settlements[x, y].isAvailable) {
-                            print("showing visual");
                             settlements[x, y].showVisual();
                             settlements[x, y].showCollider();
                             settlements[x,y].setColor(highlightMat);

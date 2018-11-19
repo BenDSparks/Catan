@@ -54,6 +54,20 @@ public class GameManager : MonoBehaviour {
     private IEnumerator GameLoop() {
         print("In game loop");
         
+        //if has knight card, ask if you want to use it
+
+        //ask them to roll the dice and wait for the roll
+
+        //resolve robber if it is rolled
+
+        //give resources to everyone remebering to not give any robbed space resources
+
+        //building trading
+
+
+
+
+
 
         yield return new WaitForSeconds(0);
 
@@ -66,7 +80,6 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < players.Length; i++) {
             //set the player turn to player i
             turnIndex = i;
-
 
             //player is placing settlement
             isPlaceingSettlement = true;
@@ -100,12 +113,25 @@ public class GameManager : MonoBehaviour {
             isPlaceingRoad = true;
             print("Waiting for player " + i + " second road to be placed");
 
-
             yield return new WaitUntil(() => roadPlaced);
             settlementPlaced = false;
             roadPlaced = false;
             print("Road Placed");
+
+            print("Giving player " + i + " starting resources");
+            giveResources(players[turnIndex].settlements[1].getX(), players[turnIndex].settlements[1].getY());
+
+            print("Bricks: " + players[turnIndex].brickCount);
+            print("Wood: " + players[turnIndex].woodCount);
+            print("Sheep: " + players[turnIndex].sheepCount);
+            print("Wheat: " + players[turnIndex].wheatCount);
+            print("Ore: " + players[turnIndex].oreCount);
         }
+
+
+
+
+
 
         //go to starting player
         turnIndex = 0;
@@ -153,19 +179,52 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    void giveResources(int x, int y) {
+        Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(gridLogic.settlements[x, y]);
+
+        for (int i = 0; i < surroundingTiles.Length; i++) {
+            if (surroundingTiles[i] != null) {
+
+                switch (surroundingTiles[i].resourceType) {
+                    case ResourceType.Brick:
+                        players[turnIndex].brickCount++;
+                        break;
+                    case ResourceType.Wood:
+                        players[turnIndex].woodCount++;
+                        break;
+                    case ResourceType.Sheep:
+                        players[turnIndex].sheepCount++;
+                        break;
+                    case ResourceType.Wheat:
+                        players[turnIndex].wheatCount++;
+                        break;
+                    case ResourceType.Ore:
+                        players[turnIndex].oreCount++;
+                        break;
+                    case ResourceType.Desert:
+                        break;
+                    case ResourceType.Water:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
     public void backgroundClicked() {
         //gridLogic.resetSettlementColors();
     }
 
     public void buySettlementIfPossible(int x, int y, Player player) {
         //check if player has enough settlements
-        if (player.settlments > 0) {
+        if (player.settlmentCount > 0) {
             if (gridLogic.settlements[x,y].isAvailable) {
                 print("(" + x + "," + y + ") settlement bought by player " + player.playerNumber);
                 gridLogic.buySettlement(x, y,player.playerNumber);
-                player.settlments--;
+                player.settlmentCount--;
+                player.settlements.Add(gridLogic.settlements[x, y]);
                 settlementPlaced = true;
-                
             }
             
         }
@@ -173,11 +232,12 @@ public class GameManager : MonoBehaviour {
     }
     public void buyRoadIfPossible(int x, int y, Player player) {
         //check if player has enough settlements
-        if (player.roads > 0) {
+        if (player.roadCount > 0) {
             if (gridLogic.roads[x, y].isAvailable) {
                 print("(" + x + "," + y + ") road bought by player " + player.playerNumber);
                 gridLogic.buyRoad(x, y, player.playerNumber);
-                player.roads--;
+                player.roadCount--;
+                player.roads.Add(gridLogic.roads[x, y]);
                 roadPlaced = true;
             }
 
