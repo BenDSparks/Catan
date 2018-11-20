@@ -8,6 +8,7 @@ public class Tile
     public int resourceNumber;
     public int x;
     public int y;
+    public bool isRobbed;
     private MeshRenderer meshRenderer;
     private Material startingMaterial;
 
@@ -16,6 +17,7 @@ public class Tile
         this.gameObject = gameObject;
         meshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
         startingMaterial = meshRenderer.material;
+        isRobbed = false;
         this.x = x;
         this.y = y;
         this.resourceType = resourceType;

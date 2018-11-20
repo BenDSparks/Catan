@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
     public GameObject playerPrefab;
     public GameObject gameBoard;
     private GridLogic gridLogic;
-    private int playerCount = 3;
+    private int playerCount = 4;
     private Player[] players;
     //private int[] turnOrder;
     private int turnIndex = 0;
@@ -22,7 +22,11 @@ public class GameManager : MonoBehaviour {
 
     bool isPlaceingSettlement = false;
     bool isPlaceingRoad = false;
+    bool isRollingDice = false;
+    bool isDistributingCards = false;
 
+    private DiceRoller diceRoller;
+   
     // Use this for initialization
     void Start () {
 
@@ -46,6 +50,9 @@ public class GameManager : MonoBehaviour {
             //settlement.transform.parent = settlementSpotsGameObject.transform;
         }
 
+        diceRoller = GetComponent<DiceRoller>();
+        diceRoller.disableAll();
+
         //highlight spots that the player can place his first settlement
         isStartingPhase = true;
         StartCoroutine(StartingPhase());
@@ -61,6 +68,8 @@ public class GameManager : MonoBehaviour {
             }
         }
     }
+
+
 
     IEnumerator AutoPickSettlements() {
         yield return new WaitForSeconds(.5f);
@@ -123,16 +132,36 @@ public class GameManager : MonoBehaviour {
 
     }
 
+  
     private IEnumerator GameLoop() {
-        
-        //if has knight card, ask if you want to use it
 
+        //if has knight card, ask if you want to use it
+        bool hasKnight = false;
+        for (int i = 0; i < players[turnIndex].developmentCards.Count; i++) {
+            if (players[turnIndex].developmentCards[i] == DevelopmentCard.Knight) {
+                //ask player 1 if they want to use a knight card
+                yield return StartCoroutine(AskToPlayKnight());
+
+                break;
+            }
+        }
         //ask them to roll the dice and wait for the roll
+        //diceRoller.gameObject.SetActive(false);
+        isRollingDice = true;
+        diceRoller.enableAll();
+
+        yield return new WaitUntil(() => !isRollingDice);
+
+
 
         //resolve robber if it is rolled
+        if (diceRoller.diceTotal == 7) {
 
-        //give resources to everyone remebering to not give any robbed space resources
-
+        }
+        else {
+            //give resources to everyone remebering to not give any robbed space resources
+            yield return StartCoroutine(GiveOutResources());
+        }
         //building trading
 
 
@@ -140,10 +169,81 @@ public class GameManager : MonoBehaviour {
 
 
 
-        yield return new WaitForSeconds(0);
-
+        turnIndex++;
+        if(turnIndex == players.Length) {
+            turnIndex = 0;
+        }
         StartCoroutine(GameLoop());
 
+
+    }
+
+    public void RollTheDice() {
+        //print("Rolling Dice!");
+        diceRoller.RollTheDice();
+        print(diceRoller.diceValues[0] + " " + diceRoller.diceValues[1] + " = " + diceRoller.diceTotal);
+        diceRoller.disableRollDiceButton();
+        isRollingDice = false;
+    }
+
+    IEnumerator AskToPlayKnight() {
+
+        print("Would you like to play a knight?");
+
+        yield return new WaitForSeconds(0);
+    }
+
+    IEnumerator GiveOutResources() {
+
+
+        for (int i = 0; i < players.Length; i++) {
+            for (int j = 0; j < players[i].settlements.Count; j++) {
+                int amount = 1;
+                if (players[i].settlements[j].isCity) {
+                    amount++;
+                }
+
+                Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(players[i].settlements[j]);
+
+                for (int k = 0; k < surroundingTiles.Length; k++) {
+                    if (surroundingTiles[k] != null) {
+                        if (surroundingTiles[k].resourceNumber == diceRoller.diceTotal) {
+                            if (surroundingTiles[k].isRobbed == false) {
+                                switch (surroundingTiles[k].resourceType) {
+                                    case ResourceType.Brick:
+                                        players[i].brickCount += amount;
+                                        break;
+                                    case ResourceType.Wood:
+                                        players[i].woodCount += amount;
+                                        break;
+                                    case ResourceType.Sheep:
+                                        players[i].sheepCount += amount;
+                                        break;
+                                    case ResourceType.Wheat:
+                                        players[i].brickCount += amount;
+
+                                        break;
+                                    case ResourceType.Ore:
+                                        players[i].oreCount += amount;
+                                        break;
+                                    case ResourceType.Desert:
+                                        break;
+                                    case ResourceType.Water:
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            testResourceAmount(i);
+        }
+
+
+        yield return new WaitForSeconds(0);
 
     }
 
@@ -192,17 +292,11 @@ public class GameManager : MonoBehaviour {
             print("Road Placed");
 
             print("Giving player " + i + " starting resources");
-            giveResources(players[turnIndex].settlements[1].getX(), players[turnIndex].settlements[1].getY());
+            GiveResources(players[turnIndex].settlements[1].getX(), players[turnIndex].settlements[1].getY());
 
-            print("Bricks: " + players[turnIndex].brickCount);
-            print("Wood: " + players[turnIndex].woodCount);
-            print("Sheep: " + players[turnIndex].sheepCount);
-            print("Wheat: " + players[turnIndex].wheatCount);
-            print("Ore: " + players[turnIndex].oreCount);
+
+            //testResourceAmount(turnIndex);
         }
-
-
-
 
 
 
@@ -211,6 +305,16 @@ public class GameManager : MonoBehaviour {
         isStartingPhase = false;
         StartCoroutine(GameLoop());
     }
+
+    void testResourceAmount(int playerNumber) {
+        print("Player " + playerNumber + "'s Cards:");
+        print("Bricks: " + players[playerNumber].brickCount);
+        print("Wood: " + players[playerNumber].woodCount);
+        print("Sheep: " + players[playerNumber].sheepCount);
+        print("Wheat: " + players[playerNumber].wheatCount);
+        print("Ore: " + players[playerNumber].oreCount);
+    }
+
 
     // Update is called once per frame
     void Update () {
@@ -225,16 +329,13 @@ public class GameManager : MonoBehaviour {
 
     public void settlementClicked(int x, int y) {
         print("settlement (" + x + "," + y + ")");
-
         if (isStartingPhase) {
             if (isPlaceingSettlement) {
                 //buy settlement in available spaces
                 buySettlementIfPossible(x, y, players[turnIndex]);
-
                 if (settlementPlaced) {
                     gridLogic.highlightStartingRoads(x,y);
                 }
-               
             }
         }  
     }
@@ -245,14 +346,11 @@ public class GameManager : MonoBehaviour {
             if (isPlaceingRoad) {
                 //buy settlement in available spaces
                 buyRoadIfPossible(x, y, players[turnIndex]);
-                   
-                
-                
             }
         }
     }
 
-    void giveResources(int x, int y) {
+    void GiveResources(int x, int y) {
         Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(gridLogic.settlements[x, y]);
 
         for (int i = 0; i < surroundingTiles.Length; i++) {

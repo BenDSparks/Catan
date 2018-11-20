@@ -15,3 +15,7 @@ public enum RoadDirection {
 public enum PlayerColor {
     Red, Blue, Orange, White, Green, Brown
 }
+
+public enum DevelopmentCard {
+    Knight, YearOfPlenty, RoadBuilding, Monopoly, VictoryPoint
+}

@@ -21,6 +21,7 @@ public class Player {
 
     public List<Settlement> settlements;
     public List<Road> roads;
+    public List<DevelopmentCard> developmentCards;
 
     GameObject gameObject; 
 
@@ -42,5 +43,6 @@ public class Player {
 
         settlements = new List<Settlement>();
         roads = new List<Road>();
+        developmentCards = new List<DevelopmentCard>();
     }
 }
