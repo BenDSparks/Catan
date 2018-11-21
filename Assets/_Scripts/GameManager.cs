@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour {
     bool isDistributingCards = false;
 
     private DiceRoller diceRoller;
+    private ResourceCardUI resourceCardUI;
    
     // Use this for initialization
     void Start () {
@@ -51,6 +52,7 @@ public class GameManager : MonoBehaviour {
         }
 
         diceRoller = GetComponent<DiceRoller>();
+        resourceCardUI = GameObject.Find("ResourcePanel").GetComponent<ResourceCardUI>();
         diceRoller.disableAll();
 
         //highlight spots that the player can place his first settlement
@@ -156,7 +158,15 @@ public class GameManager : MonoBehaviour {
 
         //resolve robber if it is rolled
         if (diceRoller.diceTotal == 7) {
-
+            for (int i = 0; i < players.Length; i++) {
+                //go through all players on a 7, if one has more then 7 cards, they get robbed
+                if (players[i].cardCount > 7) {
+                    yield return StartCoroutine(RobPlayers());
+                    break;
+                }
+                
+                
+            }
         }
         else {
             //give resources to everyone remebering to not give any robbed space resources
@@ -165,14 +175,13 @@ public class GameManager : MonoBehaviour {
         //building trading
 
 
-
-
-
-
+        //increment turn and change ui to new person
         turnIndex++;
         if(turnIndex == players.Length) {
             turnIndex = 0;
         }
+        resourceCardUI.setResources(players[turnIndex]);
+        print("Players turn: " + turnIndex);
         StartCoroutine(GameLoop());
 
 
@@ -186,16 +195,53 @@ public class GameManager : MonoBehaviour {
         isRollingDice = false;
     }
 
-    IEnumerator AskToPlayKnight() {
+    IEnumerator RobPlayers() {
+        print("Robbing Players");
+        yield return new WaitForSeconds(0);
+    }
 
+    IEnumerator AskToPlayKnight() {
         print("Would you like to play a knight?");
 
         yield return new WaitForSeconds(0);
     }
 
+    void GiveResources(int x, int y) {
+        Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(gridLogic.settlements[x, y]);
+
+        for (int i = 0; i < surroundingTiles.Length; i++) {
+            if (surroundingTiles[i] != null) {
+
+                switch (surroundingTiles[i].resourceType) {
+                    case ResourceType.Brick:
+                        players[turnIndex].brickCount++;
+                        break;
+                    case ResourceType.Wood:
+                        players[turnIndex].woodCount++;
+                        break;
+                    case ResourceType.Sheep:
+                        players[turnIndex].sheepCount++;
+                        break;
+                    case ResourceType.Wheat:
+                        players[turnIndex].wheatCount++;
+                        break;
+                    case ResourceType.Ore:
+                        players[turnIndex].oreCount++;
+                        break;
+                    case ResourceType.Desert:
+                        break;
+                    case ResourceType.Water:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
     IEnumerator GiveOutResources() {
 
-
+        //go through all the players settlements and check if they are next to the number rolled
         for (int i = 0; i < players.Length; i++) {
             for (int j = 0; j < players[i].settlements.Count; j++) {
                 int amount = 1;
@@ -237,12 +283,15 @@ public class GameManager : MonoBehaviour {
                         }
                     }
                 }
+
+                players[i].cardCount += amount;
             }
 
             testResourceAmount(i);
         }
 
-
+        //reset the ui for new cards
+        resourceCardUI.setResources(players[turnIndex]);
         yield return new WaitForSeconds(0);
 
     }
@@ -295,13 +344,14 @@ public class GameManager : MonoBehaviour {
             GiveResources(players[turnIndex].settlements[1].getX(), players[turnIndex].settlements[1].getY());
 
 
-            //testResourceAmount(turnIndex);
+            testResourceAmount(turnIndex);
         }
 
 
 
         //go to starting player
         turnIndex = 0;
+        resourceCardUI.setResources(players[turnIndex]);
         isStartingPhase = false;
         StartCoroutine(GameLoop());
     }
@@ -350,39 +400,6 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    void GiveResources(int x, int y) {
-        Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(gridLogic.settlements[x, y]);
-
-        for (int i = 0; i < surroundingTiles.Length; i++) {
-            if (surroundingTiles[i] != null) {
-
-                switch (surroundingTiles[i].resourceType) {
-                    case ResourceType.Brick:
-                        players[turnIndex].brickCount++;
-                        break;
-                    case ResourceType.Wood:
-                        players[turnIndex].woodCount++;
-                        break;
-                    case ResourceType.Sheep:
-                        players[turnIndex].sheepCount++;
-                        break;
-                    case ResourceType.Wheat:
-                        players[turnIndex].wheatCount++;
-                        break;
-                    case ResourceType.Ore:
-                        players[turnIndex].oreCount++;
-                        break;
-                    case ResourceType.Desert:
-                        break;
-                    case ResourceType.Water:
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
-
     public void backgroundClicked() {
         //gridLogic.resetSettlementColors();
     }
@@ -401,6 +418,7 @@ public class GameManager : MonoBehaviour {
         }
         
     }
+
     public void buyRoadIfPossible(int x, int y, Player player) {
         //check if player has enough settlements
         if (player.roadCount > 0) {

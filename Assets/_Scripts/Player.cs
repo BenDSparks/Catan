@@ -18,6 +18,7 @@ public class Player {
     public int wheatCount;
     public int oreCount;
     public int goldCount;
+    public int cardCount;
 
     public List<Settlement> settlements;
     public List<Road> roads;
@@ -40,6 +41,7 @@ public class Player {
         wheatCount = 0;
         oreCount = 0;
         goldCount = 0;
+        cardCount = 0;
 
         settlements = new List<Settlement>();
         roads = new List<Road>();

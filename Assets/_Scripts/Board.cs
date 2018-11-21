@@ -14,6 +14,8 @@ public class Board
     //list of resources to randomize
     public ResourceType[] resourceList;
 
+    public PortType[] ports;
+
     //number tokens for tile numbers
     public int[] numberTokens;
 
@@ -46,14 +48,25 @@ public class Board
             width = 7;
             height = 7;
             tileCount = 19;
+
+            //{
+            //    {-1,-1,-1,-1,-1,-1,-1},
+            //    {-1,-1,0,1,2,-1,-1},
+            //    {-1,-1,11,12,13,3,-1},
+            //    {-1,10,17,18,14,4,-1},
+            //    {-1,-1,9,16,15,5,-1},
+            //    {-1,-1,8,7,6,-1,-1},
+            //    {-1,-1,-1,-1,-1,-1,-1}
+            //};
+            //counter clockwise like in the catan rule book
             partOfTheBoard = new int[,]
             {
                 {-1,-1,-1,-1,-1,-1,-1},
-                {-1,-1,0,1,2,-1,-1},
-                {-1,-1,11,12,13,3,-1},
-                {-1,10,17,18,14,4,-1},
-                {-1,-1,9,16,15,5,-1},
                 {-1,-1,8,7,6,-1,-1},
+                {-1,-1,9,16,15,5,-1},
+                {-1,10,17,18,14,4,-1},
+                {-1,-1,11,12,13,3,-1},
+                {-1,-1,0,1,2,-1,-1},
                 {-1,-1,-1,-1,-1,-1,-1}
             };
             resourceList = new ResourceType[] {
@@ -77,6 +90,18 @@ public class Board
                 ResourceType.Ore,
                 ResourceType.Desert
             };
+            ports = new PortType[] {
+                PortType.Brick,
+                PortType.Wood,
+                PortType.Sheep,
+                PortType.Wheat,
+                PortType.Ore,
+                PortType.threeToOne,
+                PortType.threeToOne,
+                PortType.threeToOne,
+                PortType.threeToOne
+            };
+            
 
             ShuffleArray(resourceList);
 

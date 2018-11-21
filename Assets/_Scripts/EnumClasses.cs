@@ -19,3 +19,7 @@ public enum PlayerColor {
 public enum DevelopmentCard {
     Knight, YearOfPlenty, RoadBuilding, Monopoly, VictoryPoint
 }
+
+public enum PortType {
+    Brick, Wood, Sheep, Wheat, Ore, threeToOne
+}

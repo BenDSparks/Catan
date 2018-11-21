@@ -12,7 +12,6 @@ public class GridLogic : MonoBehaviour
     public GameObject tokenPrefab;
     public GameObject settlementSpotsGameObject;
     public GameObject roadSpotsGameObject;
-    public GameObject diceRoller;
     public Tile[,] tiles;
     public Settlement[,] settlements;
     public Road[,] roads;
@@ -83,8 +82,6 @@ public class GridLogic : MonoBehaviour
         //setAvailableSettlementSpots();
 
     }
-
-   
 
     void AddGap()
     {
