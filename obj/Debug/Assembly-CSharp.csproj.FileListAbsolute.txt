@@ -1,2 +1,0 @@
-/Users/bensparks/Catan/obj/Debug/Assembly-CSharp.csprojAssemblyReference.cache
-/Users/bensparks/Catan/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache
