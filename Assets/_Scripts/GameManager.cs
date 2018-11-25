@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
     bool isPlaceingRoad = false;
     bool isRollingDice = false;
     bool isDistributingCards = false;
+    bool isEndingTurn = false;
 
     private DiceRoller diceRoller;
     private ResourceCardUI resourceCardUI;
@@ -137,6 +138,8 @@ public class GameManager : MonoBehaviour {
   
     private IEnumerator GameLoop() {
 
+        isEndingTurn = false;
+
         //if has knight card, ask if you want to use it
         bool hasKnight = false;
         for (int i = 0; i < players[turnIndex].developmentCards.Count; i++) {
@@ -173,7 +176,11 @@ public class GameManager : MonoBehaviour {
             yield return StartCoroutine(GiveOutResources());
         }
         //building trading
+        yield return StartCoroutine(BuildTradePhase());
 
+
+        //wait till they hit the end turn button
+        yield return new WaitUntil(() => isEndingTurn);
 
         //increment turn and change ui to new person
         turnIndex++;
@@ -204,6 +211,15 @@ public class GameManager : MonoBehaviour {
         print("Would you like to play a knight?");
 
         yield return new WaitForSeconds(0);
+    }
+
+    IEnumerator BuildTradePhase(){
+        print("Build and Trade phase");
+        yield return new WaitForSeconds(0);
+    }
+
+    void endTurnButtonClicked(){
+        isEndingTurn = true;
     }
 
     void GiveResources(int x, int y) {
@@ -295,6 +311,8 @@ public class GameManager : MonoBehaviour {
         yield return new WaitForSeconds(0);
 
     }
+
+    
 
     IEnumerator StartingPhase() {
         gridLogic.resetRoadColors();
