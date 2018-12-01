@@ -9,6 +9,7 @@ public class Settlement {
     public bool isOccupied;
     public bool isAvailable;
     public bool isCity;
+    public int playerNumber;
     private MeshRenderer meshRenderer;
     private Material startingMaterial;
     private GameObject visual;
@@ -23,6 +24,7 @@ public class Settlement {
         meshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
         startingMaterial = meshRenderer.material;
         visual = gameObject.transform.GetChild(0).gameObject;
+        playerNumber = -1; 
     }
 
     public int getX() {

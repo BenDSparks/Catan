@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,6 +28,7 @@ public class GameManager : MonoBehaviour {
     bool isEndingTurn = false;
 
     private DiceRoller diceRoller;
+    private RadialMenu radialMenu;
     private ResourceCardUI resourceCardUI;
    
     // Use this for initialization
@@ -56,12 +58,50 @@ public class GameManager : MonoBehaviour {
         resourceCardUI = GameObject.Find("ResourcePanel").GetComponent<ResourceCardUI>();
         diceRoller.disableAll();
 
+        radialMenu = GetComponent<RadialMenu>();
+        radialMenu.disableAll();
+
         //highlight spots that the player can place his first settlement
         isStartingPhase = true;
         StartCoroutine(StartingPhase());
-        StartCoroutine(AutoPickSettlements());
+        StartCoroutine(DebugSetup());
 
 	}
+
+    IEnumerator DebugSetup() {
+        yield return StartCoroutine(AutoPickSettlements());
+        yield return StartCoroutine(BuyTestRoadsAndSettlements());
+        yield return new WaitForSeconds(0);
+
+    }
+
+    IEnumerator BuyTestRoadsAndSettlements() {
+        print("Claiming Debug Roads and Settlements");
+        gridLogic.makeRoadsAvailabe();
+        buyRoadIfPossible(9, 6, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(8, 6, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(7, 6, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(7, 7, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(7, 8, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(8, 9, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
+
+        buyRoadIfPossible(10, 6, players[(int)PlayerColor.Blue]);
+
+
+        gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+        yield return new WaitForSeconds(0);
+    }
 
     public static class WaitFor {
         public static IEnumerator Frames(int frameCount) {
@@ -157,6 +197,7 @@ public class GameManager : MonoBehaviour {
 
         yield return new WaitUntil(() => !isRollingDice);
 
+        diceRoller.disableRollDiceButton();
 
 
         //resolve robber if it is rolled
@@ -175,12 +216,17 @@ public class GameManager : MonoBehaviour {
             //give resources to everyone remebering to not give any robbed space resources
             yield return StartCoroutine(GiveOutResources());
         }
+
+        radialMenu.enableAll();
+
         //building trading
         yield return StartCoroutine(BuildTradePhase());
 
 
         //wait till they hit the end turn button
         yield return new WaitUntil(() => isEndingTurn);
+
+        radialMenu.disableAll();
 
         //increment turn and change ui to new person
         turnIndex++;
@@ -198,7 +244,6 @@ public class GameManager : MonoBehaviour {
         //print("Rolling Dice!");
         diceRoller.RollTheDice();
         print(diceRoller.diceValues[0] + " " + diceRoller.diceValues[1] + " = " + diceRoller.diceTotal);
-        diceRoller.disableRollDiceButton();
         isRollingDice = false;
     }
 
@@ -218,7 +263,7 @@ public class GameManager : MonoBehaviour {
         yield return new WaitForSeconds(0);
     }
 
-    void endTurnButtonClicked(){
+    public void endTurnButtonClicked(){
         isEndingTurn = true;
     }
 
@@ -310,9 +355,7 @@ public class GameManager : MonoBehaviour {
         resourceCardUI.setResources(players[turnIndex]);
         yield return new WaitForSeconds(0);
 
-    }
-
-    
+    }   
 
     IEnumerator StartingPhase() {
         gridLogic.resetRoadColors();
@@ -415,6 +458,15 @@ public class GameManager : MonoBehaviour {
                 //buy settlement in available spaces
                 buyRoadIfPossible(x, y, players[turnIndex]);
             }
+        }
+        else {
+            if (isPlaceingRoad) {
+
+            }
+            //debug!
+            //buyRoadIfPossible(x, y, players[(int)PlayerColor.Blue]);
+            //gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+            //players[(int)PlayerColor.Blue].roadCount = 1;
         }
     }
 

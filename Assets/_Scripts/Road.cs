@@ -10,6 +10,7 @@ public class Road {
     private Material startingMaterial;
     public bool isOccupied;
     public bool isAvailable;
+    public int playerNumber;
     private GameObject visual;
 
     public Road(GameObject gObject, int x, int y) {
@@ -22,7 +23,7 @@ public class Road {
         meshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
         startingMaterial = meshRenderer.material;
         visual = gameObject.transform.GetChild(0).gameObject;
-
+        playerNumber = -1;
     }
 
     public int getX() {

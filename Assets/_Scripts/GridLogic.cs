@@ -1252,7 +1252,7 @@ public class GridLogic : MonoBehaviour
     public void buySettlement(int x, int y, int playerNumber) {
         settlements[x, y].isOccupied = true;
         settlements[x, y].isAvailable = false;
-
+        settlements[x, y].playerNumber = playerNumber;
         switch (playerNumber) {
             case 0:
                 settlements[x, y].setColor(redPlayerMat);
@@ -1280,7 +1280,8 @@ public class GridLogic : MonoBehaviour
     public void buyRoad(int x, int y, int playerNumber) {
         roads[x, y].isOccupied = true;
         roads[x, y].isAvailable = false;
-
+        roads[x, y].playerNumber = playerNumber;
+        roads[x, y].showVisual();
         switch (playerNumber) {
             case 0:
                 roads[x, y].setColor(redPlayerMat);
@@ -1343,4 +1344,59 @@ public class GridLogic : MonoBehaviour
             }
         }
     }
+
+    public void makeRoadsAvailabe() {
+        foreach (Road road in roads) {
+            if (road != null) {
+                if (!road.isOccupied) {
+                    road.isAvailable = true;
+
+                }
+            }
+            
+        }
+    }
+
+    public void highlightAvailableRoadsForPlayer(Player player) {
+        print("Highlighting Roads available to player");
+        //loop through all the roads owned by that player
+        foreach (Road road in player.roads) {
+
+            //get the surround settlement spots and expand from them
+            Settlement[] surroundingSettlements = GetSettlementsAroundRoad(road);
+            foreach (Settlement settlement in surroundingSettlements) {
+                if (settlement.playerNumber == player.playerNumber || !settlement.isOccupied) {
+                    //if (!settlement.isOccupied) {
+                    //    settlement.setColor(highlightMat);
+                    //}
+                    //settlement.showVisual();
+
+                    //if settlement is players or empty, extend avaialble roads
+                    if (settlement.playerNumber == player.playerNumber || !settlement.isOccupied) {
+                        Road[] surroundingRoads = GetRoadsAroundSettlement(settlement);
+
+                        foreach (Road surroundingRoad in surroundingRoads) {
+                            if (surroundingRoad!=null) {
+                                if (!surroundingRoad.isOccupied) {
+                                    surroundingRoad.setColor(highlightMat);
+                                    surroundingRoad.showVisual();
+                                    surroundingRoad.isAvailable = true;
+                                }
+                            }
+                            
+                            
+                        }
+                    }
+
+                    
+                }
+            }
+        }
+
+
+
+
+
+    }
+
 }
