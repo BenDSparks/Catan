@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RadialMenu : MonoBehaviour {
+public class ActionMenu : MonoBehaviour {
 
     public Button endTurnButton;
-    public GameObject menuBox;
+    public Button buildButton;
+    public GameObject actionMenuBox;
+    public GameObject buildMenuBox;
 
     // Use this for initialization
     void Start () {
@@ -28,22 +30,32 @@ public class RadialMenu : MonoBehaviour {
         endTurnButton.gameObject.SetActive(true);
     }
     
-    public void disableMenuBox() {
-        menuBox.SetActive(false);
+    public void disableActionMenuBox() {
+        actionMenuBox.SetActive(false);
     }
 
-    public void enableMenuBox() {
-        menuBox.SetActive(true);
+    public void enableActionMenuBox() {
+        actionMenuBox.SetActive(true);
+    }
+
+    public void disableBuildMenuBox() {
+        buildMenuBox.SetActive(false);
+    }
+
+    public void enableBuildMenuBox() {
+        buildMenuBox.SetActive(true);
     }
 
     public void disableAll() {
         disableEndTurnButton();
-        disableMenuBox();
+        disableActionMenuBox();
+        disableBuildMenuBox();
     }
 
     public void enableAll() {
         enableEndTurnButton();
-        enableMenuBox();
+        enableActionMenuBox();
+        enableBuildMenuBox();
     }
 
     

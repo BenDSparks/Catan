@@ -26,11 +26,13 @@ public class GameManager : MonoBehaviour {
     bool isRollingDice = false;
     bool isDistributingCards = false;
     bool isEndingTurn = false;
+    bool isUpgradingToCity = false;
 
     private DiceRoller diceRoller;
-    private RadialMenu radialMenu;
+    private ActionMenu actionMenu;
     private ResourceCardUI resourceCardUI;
-   
+    
+
     // Use this for initialization
     void Start () {
 
@@ -58,8 +60,8 @@ public class GameManager : MonoBehaviour {
         resourceCardUI = GameObject.Find("ResourcePanel").GetComponent<ResourceCardUI>();
         diceRoller.disableAll();
 
-        radialMenu = GetComponent<RadialMenu>();
-        radialMenu.disableAll();
+        actionMenu = GetComponent<ActionMenu>();
+        actionMenu.disableAll();
 
         //highlight spots that the player can place his first settlement
         isStartingPhase = true;
@@ -71,6 +73,8 @@ public class GameManager : MonoBehaviour {
     IEnumerator DebugSetup() {
         yield return StartCoroutine(AutoPickSettlements());
         yield return StartCoroutine(BuyTestRoadsAndSettlements());
+        gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+        //gridLogic.highlightAvailableSettlementsForPlayer(players[(int)PlayerColor.Blue]);
         yield return new WaitForSeconds(0);
 
     }
@@ -97,9 +101,11 @@ public class GameManager : MonoBehaviour {
         gridLogic.makeRoadsAvailabe();
 
         buyRoadIfPossible(10, 6, players[(int)PlayerColor.Blue]);
+        gridLogic.makeRoadsAvailabe();
 
+        buyRoadIfPossible(6, 9, players[(int)PlayerColor.Blue]);
 
-        gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+        
         yield return new WaitForSeconds(0);
     }
 
@@ -216,8 +222,8 @@ public class GameManager : MonoBehaviour {
             //give resources to everyone remebering to not give any robbed space resources
             yield return StartCoroutine(GiveOutResources());
         }
-
-        radialMenu.enableAll();
+        actionMenu.enableEndTurnButton();
+        actionMenu.enableActionMenuBox();
 
         //building trading
         yield return StartCoroutine(BuildTradePhase());
@@ -226,7 +232,7 @@ public class GameManager : MonoBehaviour {
         //wait till they hit the end turn button
         yield return new WaitUntil(() => isEndingTurn);
 
-        radialMenu.disableAll();
+        actionMenu.disableAll();
 
         //increment turn and change ui to new person
         turnIndex++;
@@ -263,9 +269,28 @@ public class GameManager : MonoBehaviour {
         yield return new WaitForSeconds(0);
     }
 
-    public void endTurnButtonClicked(){
+    public void EndTurnButtonClicked(){
         isEndingTurn = true;
     }
+
+    public void BuildRoadButtonClicked() {
+        actionMenu.disableBuildMenuBox();
+        print("Trying to build a road");
+    }
+
+    public void BuildSettlementButtonClicked() {
+        actionMenu.disableBuildMenuBox();
+    }
+
+    public void BuildCityButtonClicked() {
+        actionMenu.disableBuildMenuBox();
+
+    }
+    public void BuildDCardButtonClicked() {
+        actionMenu.disableBuildMenuBox();
+
+    }
+
 
     void GiveResources(int x, int y) {
         Tile[] surroundingTiles = gridLogic.GetTilesAroundSettlement(gridLogic.settlements[x, y]);
@@ -448,14 +473,25 @@ public class GameManager : MonoBehaviour {
                     gridLogic.highlightStartingRoads(x,y);
                 }
             }
-        }  
+        }
+        else {
+            if (isPlaceingSettlement) {
+
+            }
+            else if (isUpgradingToCity) {
+
+            }
+            //buySettlementIfPossible(x, y, players[(int)PlayerColor.Blue]);
+            //gridLogic.highlightAvailableSettlementsForPlayer(players[(int)PlayerColor.Blue]);
+            //players[(int)PlayerColor.Blue].settlmentCount = 1;
+        }
     }
 
     public void roadClicked(int x, int y) {
         print("Road clicked (" + x + "," + y + ")");
         if (isStartingPhase) {
             if (isPlaceingRoad) {
-                //buy settlement in available spaces
+                //buy road in available spaces
                 buyRoadIfPossible(x, y, players[turnIndex]);
             }
         }
@@ -464,9 +500,9 @@ public class GameManager : MonoBehaviour {
 
             }
             //debug!
-            //buyRoadIfPossible(x, y, players[(int)PlayerColor.Blue]);
-            //gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
-            //players[(int)PlayerColor.Blue].roadCount = 1;
+            buyRoadIfPossible(x, y, players[(int)PlayerColor.Blue]);
+            gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+            players[(int)PlayerColor.Blue].roadCount = 10;
         }
     }
 

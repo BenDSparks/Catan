@@ -1392,11 +1392,35 @@ public class GridLogic : MonoBehaviour
                 }
             }
         }
-
-
-
-
-
     }
 
+    public void highlightAvailableSettlementsForPlayer(Player player) {
+        print("Highlighting Settlements available to player");
+
+        foreach (Road road in player.roads) {
+
+            //get the surround settlement spots and expand from them
+            Settlement[] settlementsAroundRoad = GetSettlementsAroundRoad(road);
+            foreach (Settlement settlement in settlementsAroundRoad) {
+                if ( !settlement.isOccupied) {
+                    bool hasASettlementTooClose = false;
+
+                    Settlement[] settlementsAroundSettlements = GetSettlementsAroundSettlements(settlement);
+
+                    foreach (Settlement surroundingSettlement in settlementsAroundSettlements) {
+                        if (surroundingSettlement.isOccupied) {
+                            hasASettlementTooClose = true;
+                        }
+                    }
+
+                    if (!hasASettlementTooClose) {
+                        settlement.isAvailable = true;
+                        settlement.setColor(highlightMat);
+                        settlement.showVisual();
+                    }
+
+                }
+            }
+        }
+    }
 }
