@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 114867061205624450}
   - component: {fileID: 114216208571904250}
   - component: {fileID: 114980297640921746}
+  - component: {fileID: 114725653719789546}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -56,6 +57,22 @@ MonoBehaviour:
   playerPrefab: {fileID: 1870755487288466, guid: f0fd240ecd2c63742be42e955c516bd0,
     type: 2}
   gameBoard: {fileID: 0}
+--- !u!114 &114725653719789546
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1879868559714678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff1f4357374d60a4f88632999755f50e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  endTurnButton: {fileID: 0}
+  buildButton: {fileID: 0}
+  actionMenuBox: {fileID: 0}
+  buildMenuBox: {fileID: 0}
+  cancelBox: {fileID: 0}
 --- !u!114 &114867061205624450
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -69,6 +86,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 0}
   gameBoard: {fileID: 0}
+  m_Raycaster: {fileID: 0}
+  m_EventSystem: {fileID: 0}
 --- !u!114 &114980297640921746
 MonoBehaviour:
   m_ObjectHideFlags: 1

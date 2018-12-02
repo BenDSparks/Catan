@@ -15,6 +15,8 @@ public class CameraDrag : MonoBehaviour
          }
          if (Input.GetMouseButton(1)){
              Diference = MousePos() - transform.position;
+            Diference.z = 0;
+
              transform.position = Origin - Diference;
          }
          if (Input.GetMouseButton(2)){

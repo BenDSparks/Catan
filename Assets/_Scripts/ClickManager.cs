@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ClickManager : MonoBehaviour {
 
@@ -10,31 +12,72 @@ public class ClickManager : MonoBehaviour {
     private GridLogic gridLogic;
     private GameManager gameManager;
 
-	// Use this for initialization
-	void Start () {
+    public GraphicRaycaster m_Raycaster;
+    PointerEventData m_PointerEventData;
+    public EventSystem m_EventSystem;
+
+    // Use this for initialization
+    void Start () {
         gridLogic = gameBoard.GetComponent<GridLogic>();
-        gameManager = this.gameObject.GetComponent<GameManager>();
-	}
+        gameManager = GetComponent<GameManager>();
+
+        
+    }
 	
 	// Update is called once per frame
 	void Update () {
 
         if (Input.GetMouseButtonDown(0)){
+
+            //Set up the new Pointer Event
+            m_PointerEventData = new PointerEventData(m_EventSystem);
+            //Set the Pointer Event Position to that of the mouse position
+            m_PointerEventData.position = Input.mousePosition;
+
+            //Create a list of Raycast Results
+            List<RaycastResult> results = new List<RaycastResult>();
+
+            //Raycast using the Graphics Raycaster and mouse click position
+            m_Raycaster.Raycast(m_PointerEventData, results);
+
+            //For every result returned, output the name of the GameObject on the Canvas hit by the Ray
+            foreach (RaycastResult result in results) {
+                Debug.Log("Hit UI " + result.gameObject.name);
+            }
+
+
+            if(results.Count > 0) {
+                return;
+            }
+
+
+
+
+
+
+
+
+
+            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit[] hits;
             Vector3 forward = transform.TransformDirection(Vector3.forward) * 100;
 
-            Ray ray = new Ray(camera.ScreenToWorldPoint(Input.mousePosition), forward);
+            //Ray ray = new Ray(camera.ScreenToWorldPoint(Input.mousePosition), forward);
+
+
+
             //Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-            Debug.DrawRay(camera.ScreenToWorldPoint(Input.mousePosition), forward,Color.red, 1);
+            //Debug.DrawRay(camera.ScreenToWorldPoint(Input.mousePosition), forward,Color.red, 1);
+            Debug.DrawRay(ray.origin,ray.direction);
 
             //get all the raycast hits and order them by which was hit first
             hits = Physics.RaycastAll(ray).OrderBy(h => h.distance).ToArray(); ;
             
-            print("Length " + hits.Length);
+            //print("Length " + hits.Length);
             for (int i = 0; i < hits.Length; i++){
-                print(i);
+                //print(i);
                 RaycastHit hit = hits[i];
-                print("i: " + i + " " + hit.transform.tag);
+                //print("i: " + i + " " + hit.transform.tag);
                 
                 if (hit.transform.tag == "Settlement") {
                     print("Settlment clicked");

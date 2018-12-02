@@ -72,11 +72,11 @@ public class GameManager : MonoBehaviour {
 
     IEnumerator DebugSetup() {
         yield return StartCoroutine(AutoPickSettlements());
+        RollTheDice();
         yield return StartCoroutine(BuyTestRoadsAndSettlements());
-        gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+        //gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
         //gridLogic.highlightAvailableSettlementsForPlayer(players[(int)PlayerColor.Blue]);
         yield return new WaitForSeconds(0);
-
     }
 
     IEnumerator BuyTestRoadsAndSettlements() {
@@ -273,22 +273,54 @@ public class GameManager : MonoBehaviour {
         isEndingTurn = true;
     }
 
+    public void CancelButtonClicked() {
+        if (isPlaceingRoad) {
+            //give back resources and reset menus
+            isPlaceingRoad = false;
+            gridLogic.resetRoadColors();
+            
+        }
+        else if (isPlaceingSettlement) {
+            isPlaceingSettlement = false;
+            gridLogic.resetSettlementColors();
+        }
+
+        actionMenu.disableCancelBox();
+        actionMenu.enableActionMenuBox();
+    }
+
     public void BuildRoadButtonClicked() {
         actionMenu.disableBuildMenuBox();
+        actionMenu.disableActionMenuBox();
+        actionMenu.enableCancelBox();
         print("Trying to build a road");
+        //check if enough cards and roads
+        gridLogic.highlightAvailableRoadsForPlayer(players[turnIndex]);
+        isPlaceingRoad = true;
+        //take resources
+
     }
 
     public void BuildSettlementButtonClicked() {
-        actionMenu.disableBuildMenuBox();
+        actionMenu.enableCancelBoxOnly();
+        //check if enough cards and settlements
+        gridLogic.highlightAvailableSettlementsForPlayer(players[turnIndex]);
+        isPlaceingSettlement = true;
     }
 
     public void BuildCityButtonClicked() {
-        actionMenu.disableBuildMenuBox();
+        actionMenu.enableCancelBoxOnly();
+        
 
     }
     public void BuildDCardButtonClicked() {
-        actionMenu.disableBuildMenuBox();
+        actionMenu.enableCancelBoxOnly();
+        
 
+    }
+
+    public void BuildMenuButtonClicked() {
+        actionMenu.toggleBuildMenuBox();
     }
 
 
@@ -476,7 +508,7 @@ public class GameManager : MonoBehaviour {
         }
         else {
             if (isPlaceingSettlement) {
-
+                buySettlementIfPossible(x, y, players[turnIndex]);
             }
             else if (isUpgradingToCity) {
 
@@ -497,12 +529,13 @@ public class GameManager : MonoBehaviour {
         }
         else {
             if (isPlaceingRoad) {
+                buyRoadIfPossible(x, y, players[turnIndex]);
 
             }
             //debug!
-            buyRoadIfPossible(x, y, players[(int)PlayerColor.Blue]);
-            gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
-            players[(int)PlayerColor.Blue].roadCount = 10;
+            //buyRoadIfPossible(x, y, players[(int)PlayerColor.Blue]);
+            //gridLogic.highlightAvailableRoadsForPlayer(players[(int)PlayerColor.Blue]);
+            //players[(int)PlayerColor.Blue].roadCount = 10;
         }
     }
 
@@ -511,32 +544,43 @@ public class GameManager : MonoBehaviour {
     }
 
     public void buySettlementIfPossible(int x, int y, Player player) {
-        //check if player has enough settlements
-        if (player.settlmentCount > 0) {
-            if (gridLogic.settlements[x,y].isAvailable) {
-                print("(" + x + "," + y + ") settlement bought by player " + player.playerNumber);
-                gridLogic.buySettlement(x, y,player.playerNumber);
-                player.settlmentCount--;
-                player.settlements.Add(gridLogic.settlements[x, y]);
-                settlementPlaced = true;
+        
+        if (gridLogic.settlements[x,y].isAvailable) {
+            print("(" + x + "," + y + ") settlement bought by player " + player.playerNumber);
+            gridLogic.buySettlement(x, y,player.playerNumber);
+            player.settlmentCount--;
+            player.settlements.Add(gridLogic.settlements[x, y]);
+            settlementPlaced = true;
+            isPlaceingSettlement = false;
+            if (!isStartingPhase) {
+                actionMenu.enableActionMenuBox();
+                actionMenu.disableCancelBox();
             }
             
         }
+            
+        
         
     }
 
     public void buyRoadIfPossible(int x, int y, Player player) {
         //check if player has enough settlements
-        if (player.roadCount > 0) {
-            if (gridLogic.roads[x, y].isAvailable) {
-                print("(" + x + "," + y + ") road bought by player " + player.playerNumber);
-                gridLogic.buyRoad(x, y, player.playerNumber);
-                player.roadCount--;
-                player.roads.Add(gridLogic.roads[x, y]);
-                roadPlaced = true;
+        
+        if (gridLogic.roads[x, y].isAvailable) {
+            print("(" + x + "," + y + ") road bought by player " + player.playerNumber);
+            gridLogic.buyRoad(x, y, player.playerNumber);
+            player.roadCount--;
+            player.roads.Add(gridLogic.roads[x, y]);
+            roadPlaced = true;
+            isPlaceingRoad = false;
+            if (!isStartingPhase) {
+                actionMenu.enableActionMenuBox();
+                actionMenu.disableCancelBox();
             }
-
+            
         }
+
+        
 
     }
 }
